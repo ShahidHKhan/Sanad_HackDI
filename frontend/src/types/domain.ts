@@ -72,6 +72,49 @@ export interface ChatMessage {
   senderName: string;
 }
 
+export interface Masjid {
+  id: string;
+  name: string;
+  town: string;
+  phone: string;
+  ghuslMen: boolean;
+  ghuslWomen: boolean;
+  shortNotice: boolean;
+  notes: string;
+  addedByName: string;
+  createdAt: string;
+}
+
+export interface Cemetery {
+  id: string;
+  name: string;
+  town: string;
+  phone: string;
+  islamicSection: boolean;
+  noCasketAllowed: boolean;
+  intermentHours: string;
+  notes: string;
+  addedByName: string;
+  createdAt: string;
+}
+
+export type DirectoryEntryType = 'masjid' | 'cemetery';
+export type DirectoryOutcome = 'confirmed' | 'not_available';
+
+export interface DirectoryCall {
+  entryType: DirectoryEntryType;
+  entryId: string;
+  claimedByPid: Pid | null;
+  claimedByName: string | null;
+  claimedAt: string | null;
+  outcome: DirectoryOutcome | null;
+  outcomeNote: string | null;
+  confirmedAt: string | null;
+  loggedByPid: Pid | null;
+  loggedByName: string | null;
+  loggedAt: string | null;
+}
+
 export interface SessionState {
   session: SessionMeta;
   participants: Participant[];
@@ -79,4 +122,5 @@ export interface SessionState {
   costs: Cost[];
   documents: DocumentEntry[];
   chatMessages: ChatMessage[];
+  directoryCalls: DirectoryCall[];
 }

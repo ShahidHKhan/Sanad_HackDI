@@ -2,10 +2,17 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CodeBadge } from '../components/CodeBadge';
 import { ErrorState } from '../components/ErrorState';
+import { FindTab } from '../components/find/FindTab';
 import { HalfToggle } from '../components/HalfToggle';
 import { JoinByCodeForm } from '../components/JoinByCodeForm';
 import { useSessionState } from '../hooks/useSessionState';
 import * as membership from '../lib/membership';
+
+type TabId = 'find';
+
+const NAV_ITEMS: { id: TabId; label: string; icon: string }[] = [
+  { id: 'find', label: 'Find', icon: '🕌' },
+];
 
 export function MasjidPage() {
   const { code = '' } = useParams<{ code: string }>();
@@ -13,6 +20,7 @@ export function MasjidPage() {
   const normalizedCode = code.toUpperCase();
   const { status, state } = useSessionState(normalizedCode);
   const [joinedTick, setJoinedTick] = useState(0);
+  const [tab, setTab] = useState<TabId>('find');
 
   if (status === 'loading') {
     return <div className="loading-state">Loading…</div>;
@@ -44,6 +52,8 @@ export function MasjidPage() {
     return <div className="loading-state">Loading…</div>;
   }
 
+  const by = { pid: member.pid, name: member.name };
+
   return (
     <div className="session-page">
       <header className="session-header">
@@ -71,15 +81,22 @@ export function MasjidPage() {
       <HalfToggle code={normalizedCode} active="masjid" />
 
       <main>
-        <div className="masjid-placeholder">
-          <p>
-            This section is for masjid board members to coordinate
-            community-facing parts of the janazah — ghusl facility
-            availability, burial slot confirmation, and related logistics.
-          </p>
-          <p className="masjid-placeholder-note">Coming soon.</p>
-        </div>
+        {tab === 'find' && <FindTab code={normalizedCode} state={state} by={by} />}
       </main>
+
+      <nav className="bottom-nav">
+        {NAV_ITEMS.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className={`bottom-nav-item ${tab === item.id ? 'active' : ''}`}
+            onClick={() => setTab(item.id)}
+          >
+            <span className="bottom-nav-icon">{item.icon}</span>
+            <span className="bottom-nav-label">{item.label}</span>
+          </button>
+        ))}
+      </nav>
     </div>
   );
 }

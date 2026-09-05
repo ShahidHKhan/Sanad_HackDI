@@ -241,19 +241,6 @@ label {
   justify-content: center;
 }
 
-.masjid-placeholder {
-  color: var(--muted);
-  text-align: center;
-  margin-top: 3rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.masjid-placeholder-note {
-  font-style: italic;
-}
-
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -645,6 +632,131 @@ label {
 .document-row-note {
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+.find-tab {
+  display: flex;
+  flex-direction: column;
+}
+
+.directory-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--fg);
+  margin-top: 0;
+}
+
+.directory-card {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.directory-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.directory-card-name {
+  font-weight: 600;
+}
+
+.directory-used-badge {
+  background: var(--confirmed-bg);
+  color: var(--confirmed);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.1rem 0.5rem;
+  border-radius: var(--radius-pill);
+  text-transform: uppercase;
+  flex: none;
+}
+
+.directory-card-meta {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.directory-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.15rem;
+}
+
+.tag-chip {
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  padding: 0.1rem 0.55rem;
+}
+
+.directory-card-notes {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0.15rem 0 0;
+}
+
+.directory-call-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.4rem;
+}
+
+.directory-log-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+}
+
+.directory-outcome {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--border);
+}
+
+.directory-outcome-status {
+  font-weight: 600;
+}
+
+.directory-outcome-confirmed .directory-outcome-status {
+  color: var(--confirmed);
+}
+
+.directory-outcome-not_available .directory-outcome-status {
+  color: var(--danger);
+}
+
+.directory-outcome-note {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.directory-used-note {
+  color: var(--confirmed);
+  font-size: 0.85rem;
+  font-style: italic;
 }
 
 .announce-tab {
