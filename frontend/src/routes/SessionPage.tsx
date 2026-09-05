@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { AnnounceTab } from '../components/announce/AnnounceTab';
 import { ChatDrawer } from '../components/ChatDrawer';
 import { CodeBadge } from '../components/CodeBadge';
@@ -16,8 +16,24 @@ import * as membership from '../lib/membership';
 
 type TabId = 'overview' | 'tasks' | 'records' | 'announce';
 
+const NAV_ITEMS: { id: TabId; label: string; icon: string }[] = [
+  { id: 'overview', label: 'Overview', icon: '🕐' },
+  { id: 'tasks', label: 'Tasks', icon: '✅' },
+  { id: 'records', label: 'Records', icon: '📄' },
+  { id: 'announce', label: 'Announce', icon: '📢' },
+];
+
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  return parts
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase() ?? '')
+    .join('');
+}
+
 export function SessionPage() {
   const { code = '' } = useParams<{ code: string }>();
+  const navigate = useNavigate();
   const normalizedCode = code.toUpperCase();
   const { status, state } = useSessionState(normalizedCode);
   const [tab, setTab] = useState<TabId>('overview');
@@ -65,20 +81,25 @@ export function SessionPage() {
   return (
     <div className="session-page">
       <header className="session-header">
-        <CodeBadge code={normalizedCode} />
+        <button
+          type="button"
+          className="icon-button"
+          aria-label="Back"
+          onClick={() => navigate('/')}
+        >
+          ←
+        </button>
+
+        <div className="session-title-block">
+          <h1 className="session-title">Janaza Organizer</h1>
+          <span className="session-subtitle">
+            {state.session.deceasedName || 'Deceased’s name not yet set'}
+          </span>
+        </div>
+
         <div className="session-header-actions">
-          <button
-            type="button"
-            className="icon-button chat-trigger"
-            aria-label="Open chat"
-            onClick={() => {
-              chatSeen.markSeen(normalizedCode);
-              setChatOpen(true);
-            }}
-          >
-            💬
-            {hasUnreadChat && <span className="unread-dot" />}
-          </button>
+          <span className="avatar-badge">{getInitials(member.name)}</span>
+          <CodeBadge code={normalizedCode} />
           <button
             type="button"
             className="icon-button"
@@ -98,37 +119,6 @@ export function SessionPage() {
         </div>
       </header>
 
-      <nav className="tab-switcher">
-        <button
-          type="button"
-          className={tab === 'overview' ? 'active' : ''}
-          onClick={() => setTab('overview')}
-        >
-          Overview
-        </button>
-        <button
-          type="button"
-          className={tab === 'tasks' ? 'active' : ''}
-          onClick={() => setTab('tasks')}
-        >
-          Tasks
-        </button>
-        <button
-          type="button"
-          className={tab === 'records' ? 'active' : ''}
-          onClick={() => setTab('records')}
-        >
-          Records
-        </button>
-        <button
-          type="button"
-          className={tab === 'announce' ? 'active' : ''}
-          onClick={() => setTab('announce')}
-        >
-          Announce
-        </button>
-      </nav>
-
       <main>
         {tab === 'overview' && <OverviewTab state={state} />}
         {tab === 'tasks' && (
@@ -139,6 +129,33 @@ export function SessionPage() {
         )}
         {tab === 'announce' && <AnnounceTab state={state} />}
       </main>
+
+      <nav className="bottom-nav">
+        {NAV_ITEMS.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className={`bottom-nav-item ${tab === item.id ? 'active' : ''}`}
+            onClick={() => setTab(item.id)}
+          >
+            <span className="bottom-nav-icon">{item.icon}</span>
+            <span className="bottom-nav-label">{item.label}</span>
+          </button>
+        ))}
+      </nav>
+
+      <button
+        type="button"
+        className="chat-fab"
+        aria-label="Open chat"
+        onClick={() => {
+          chatSeen.markSeen(normalizedCode);
+          setChatOpen(true);
+        }}
+      >
+        💬
+        {hasUnreadChat && <span className="unread-dot" />}
+      </button>
 
       {detailsOpen && (
         <SessionDetailsModal

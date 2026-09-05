@@ -19,11 +19,14 @@ export function CodeBadge({ code }: CodeBadgeProps) {
   }
 
   return (
-    <div className="code-badge">
-      <span className="code-badge-code">{code}</span>
-      <button type="button" onClick={copyInviteLink}>
-        {copied ? 'Copied!' : 'Copy invite link'}
-      </button>
-    </div>
+    <button
+      type="button"
+      className="code-badge"
+      onClick={copyInviteLink}
+      aria-label="Copy invite link"
+      title="Copy invite link"
+    >
+      {copied ? 'Copied!' : code}
+    </button>
   );
 }
