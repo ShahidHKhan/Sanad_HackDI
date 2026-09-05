@@ -98,6 +98,20 @@ export interface Cemetery {
   createdAt: string;
 }
 
+export interface PlaceLookupResult {
+  osmId: string;
+  name: string;
+  isUnnamed?: boolean; // no name tag in OSM — often a bulk land-use import
+  town: string;
+  address: string;
+  phone: string;
+  website: string;
+  lat: number | null;
+  lon: number | null;
+  mapUrl: string | null;
+  islamicSectionHint?: boolean; // cemetery lookups only, from OSM's religion tag
+}
+
 export type DirectoryEntryType = 'masjid' | 'cemetery';
 export type DirectoryOutcome = 'confirmed' | 'not_available';
 

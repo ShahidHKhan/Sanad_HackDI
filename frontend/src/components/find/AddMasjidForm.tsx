@@ -5,12 +5,13 @@ interface AddMasjidFormProps {
   code: string;
   by: { pid: string; name: string };
   onDone: () => void;
+  initial?: { name?: string; town?: string; phone?: string };
 }
 
-export function AddMasjidForm({ by, onDone }: AddMasjidFormProps) {
-  const [name, setName] = useState('');
-  const [town, setTown] = useState('');
-  const [phone, setPhone] = useState('');
+export function AddMasjidForm({ by, onDone, initial }: AddMasjidFormProps) {
+  const [name, setName] = useState(initial?.name ?? '');
+  const [town, setTown] = useState(initial?.town ?? '');
+  const [phone, setPhone] = useState(initial?.phone ?? '');
   const [ghuslMen, setGhuslMen] = useState(false);
   const [ghuslWomen, setGhuslWomen] = useState(false);
   const [shortNotice, setShortNotice] = useState(false);

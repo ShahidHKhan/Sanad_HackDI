@@ -5,16 +5,17 @@ interface AddCemeteryFormProps {
   code: string;
   by: { pid: string; name: string };
   onDone: () => void;
+  initial?: { name?: string; town?: string; phone?: string; islamicSection?: boolean; notes?: string };
 }
 
-export function AddCemeteryForm({ by, onDone }: AddCemeteryFormProps) {
-  const [name, setName] = useState('');
-  const [town, setTown] = useState('');
-  const [phone, setPhone] = useState('');
-  const [islamicSection, setIslamicSection] = useState(false);
+export function AddCemeteryForm({ by, onDone, initial }: AddCemeteryFormProps) {
+  const [name, setName] = useState(initial?.name ?? '');
+  const [town, setTown] = useState(initial?.town ?? '');
+  const [phone, setPhone] = useState(initial?.phone ?? '');
+  const [islamicSection, setIslamicSection] = useState(initial?.islamicSection ?? false);
   const [noCasketAllowed, setNoCasketAllowed] = useState(false);
   const [intermentHours, setIntermentHours] = useState('');
-  const [notes, setNotes] = useState('');
+  const [notes, setNotes] = useState(initial?.notes ?? '');
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();

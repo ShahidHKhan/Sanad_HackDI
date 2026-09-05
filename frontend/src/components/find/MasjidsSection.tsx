@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
-import type { DirectoryCall, Masjid, SessionMeta } from '../../types/domain';
+import * as sessionStore from '../../lib/sessionStore';
+import type { DirectoryCall, Masjid, PlaceLookupResult, SessionMeta } from '../../types/domain';
 import { AddMasjidForm } from './AddMasjidForm';
+import { LookupPlacesPanel } from './LookupPlacesPanel';
 import { MasjidCard } from './MasjidCard';
 
 interface MasjidsSectionProps {
@@ -16,7 +18,13 @@ export function MasjidsSection({ code, masjids, calls, session, by }: MasjidsSec
   const [ghuslMenOnly, setGhuslMenOnly] = useState(false);
   const [ghuslWomenOnly, setGhuslWomenOnly] = useState(false);
   const [shortNoticeOnly, setShortNoticeOnly] = useState(false);
-  const [adding, setAdding] = useState(false);
+  const [addPrefill, setAddPrefill] = useState<{ name?: string; town?: string; phone?: string } | null>(
+    null,
+  );
+
+  function handleAddFromLookup(result: PlaceLookupResult) {
+    setAddPrefill({ name: result.name, town: result.town, phone: result.phone });
+  }
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -31,6 +39,16 @@ export function MasjidsSection({ code, masjids, calls, session, by }: MasjidsSec
 
   return (
     <div className="records-section">
+      <LookupPlacesPanel
+        title="Look up masjids near a city"
+        placeholder="e.g. Paterson, NJ"
+        emptyMessage="No mosques found in OpenStreetMap for that area."
+        search={sessionStore.searchNearbyMasjids}
+        onAdd={handleAddFromLookup}
+      />
+
+      <h3 className="directory-section-heading">Community directory</h3>
+
       <input
         className="directory-search"
         placeholder="Search masjids by name or town…"
@@ -64,10 +82,15 @@ export function MasjidsSection({ code, masjids, calls, session, by }: MasjidsSec
         </label>
       </div>
 
-      {adding ? (
-        <AddMasjidForm code={code} by={by} onDone={() => setAdding(false)} />
+      {addPrefill ? (
+        <AddMasjidForm
+          code={code}
+          by={by}
+          initial={addPrefill}
+          onDone={() => setAddPrefill(null)}
+        />
       ) : (
-        <button type="button" className="records-log-button" onClick={() => setAdding(true)}>
+        <button type="button" className="records-log-button" onClick={() => setAddPrefill({})}>
           Add a masjid
         </button>
       )}

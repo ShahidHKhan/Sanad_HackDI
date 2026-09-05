@@ -639,6 +639,53 @@ label {
   flex-direction: column;
 }
 
+.lookup-panel {
+  max-width: none;
+  gap: 0.6rem;
+}
+
+.lookup-panel h3 {
+  margin: 0;
+}
+
+.lookup-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.lookup-form input {
+  flex: 1;
+}
+
+.lookup-result-card {
+  gap: 0.25rem;
+}
+
+.lookup-no-phone,
+.lookup-unnamed-note {
+  font-style: italic;
+}
+
+.lookup-map-link {
+  font-size: 0.8rem;
+  color: var(--accent);
+  align-self: flex-start;
+}
+
+.lookup-attribution {
+  color: var(--muted);
+  font-size: 0.7rem;
+  margin: 0.25rem 0 0;
+}
+
+.directory-section-heading {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .directory-filters {
   display: flex;
   flex-wrap: wrap;

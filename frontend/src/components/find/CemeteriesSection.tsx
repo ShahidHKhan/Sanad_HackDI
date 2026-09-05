@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
-import type { Cemetery, DirectoryCall, SessionMeta } from '../../types/domain';
+import * as sessionStore from '../../lib/sessionStore';
+import type { Cemetery, DirectoryCall, PlaceLookupResult, SessionMeta } from '../../types/domain';
 import { AddCemeteryForm } from './AddCemeteryForm';
 import { CemeteryCard } from './CemeteryCard';
+import { LookupPlacesPanel } from './LookupPlacesPanel';
 
 interface CemeteriesSectionProps {
   code: string;
@@ -15,7 +17,25 @@ export function CemeteriesSection({ code, cemeteries, calls, session, by }: Ceme
   const [query, setQuery] = useState('');
   const [islamicSectionOnly, setIslamicSectionOnly] = useState(false);
   const [noCasketOnly, setNoCasketOnly] = useState(false);
-  const [adding, setAdding] = useState(false);
+  const [addPrefill, setAddPrefill] = useState<{
+    name?: string;
+    town?: string;
+    phone?: string;
+    islamicSection?: boolean;
+    notes?: string;
+  } | null>(null);
+
+  function handleAddFromLookup(result: PlaceLookupResult) {
+    setAddPrefill({
+      name: result.isUnnamed ? '' : result.name,
+      town: result.town,
+      phone: result.phone,
+      islamicSection: result.islamicSectionHint,
+      notes: result.isUnnamed
+        ? 'Found via OpenStreetMap location lookup — the map data has no name on file, confirm the actual name before saving.'
+        : undefined,
+    });
+  }
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -29,6 +49,16 @@ export function CemeteriesSection({ code, cemeteries, calls, session, by }: Ceme
 
   return (
     <div className="records-section">
+      <LookupPlacesPanel
+        title="Look up cemeteries near a city"
+        placeholder="e.g. Paterson, NJ"
+        emptyMessage="No cemeteries found in OpenStreetMap for that area."
+        search={sessionStore.searchNearbyCemeteries}
+        onAdd={handleAddFromLookup}
+      />
+
+      <h3 className="directory-section-heading">Community directory</h3>
+
       <input
         className="directory-search"
         placeholder="Search cemeteries by name or town…"
@@ -54,10 +84,15 @@ export function CemeteriesSection({ code, cemeteries, calls, session, by }: Ceme
         </label>
       </div>
 
-      {adding ? (
-        <AddCemeteryForm code={code} by={by} onDone={() => setAdding(false)} />
+      {addPrefill ? (
+        <AddCemeteryForm
+          code={code}
+          by={by}
+          initial={addPrefill}
+          onDone={() => setAddPrefill(null)}
+        />
       ) : (
-        <button type="button" className="records-log-button" onClick={() => setAdding(true)}>
+        <button type="button" className="records-log-button" onClick={() => setAddPrefill({})}>
           Add a cemetery
         </button>
       )}

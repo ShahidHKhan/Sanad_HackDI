@@ -17,6 +17,7 @@ import type {
   Masjid,
   Participant,
   Pid,
+  PlaceLookupResult,
   SessionMeta,
   SessionState,
   Task,
@@ -757,6 +758,25 @@ export async function releaseDirectoryEntry(
     .eq('entry_type', entryType)
     .eq('entry_id', entryId);
   if (error) throw error;
+}
+
+async function searchNearbyPlaces(
+  type: 'masjid' | 'cemetery',
+  query: string,
+): Promise<{ results: PlaceLookupResult[]; notice?: string }> {
+  const { data, error } = await supabase.functions.invoke('search-masjids', {
+    body: { query, type },
+  });
+  if (error) throw error;
+  return data;
+}
+
+export function searchNearbyMasjids(query: string) {
+  return searchNearbyPlaces('masjid', query);
+}
+
+export function searchNearbyCemeteries(query: string) {
+  return searchNearbyPlaces('cemetery', query);
 }
 
 export async function logDirectoryOutcome(
