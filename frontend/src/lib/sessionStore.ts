@@ -7,6 +7,8 @@ import { supabase } from './supabase';
 import { generateCode } from './code';
 import { seedTasks } from '../data/defaultTasks';
 import type {
+  Cost,
+  DocumentEntry,
   Participant,
   Pid,
   SessionMeta,
@@ -34,11 +36,42 @@ function rowToSessionMeta(row: any): SessionMeta {
     createdAt: row.created_at,
     createdByPid: row.created_by_pid,
     createdByName: row.created_by_name,
+    deceasedName: row.deceased_name,
+    diedAt: row.died_at,
+    deathLocation: row.death_location,
+    masjidName: row.masjid_name,
+    cemeteryName: row.cemetery_name,
+    coordinatorName: row.coordinator_name,
+    coordinatorPhone: row.coordinator_phone,
   };
 }
 
 function rowToParticipant(row: any): Participant {
   return { pid: row.pid, name: row.name, joinedAt: row.joined_at };
+}
+
+function rowToCost(row: any): Cost {
+  return {
+    id: row.id,
+    label: row.label,
+    amount: Number(row.amount),
+    paidByPid: row.paid_by_pid,
+    paidByName: row.paid_by_name,
+    at: row.at,
+    addedByPid: row.added_by_pid,
+    addedByName: row.added_by_name,
+  };
+}
+
+function rowToDocument(row: any): DocumentEntry {
+  return {
+    id: row.id,
+    title: row.title,
+    note: row.note,
+    addedByPid: row.added_by_pid,
+    addedByName: row.added_by_name,
+    at: row.at,
+  };
 }
 
 function rowToTask(row: any): Task {
@@ -129,18 +162,28 @@ export async function getSession(code: string): Promise<SessionState | null> {
   if (sessionError) throw sessionError;
   if (!sessionRow) return null;
 
-  const [{ data: participantRows, error: participantsError }, { data: taskRows, error: tasksError }] =
-    await Promise.all([
-      supabase.from('participants').select('*').eq('session_code', code).order('joined_at'),
-      supabase.from('tasks').select('*').eq('session_code', code).order('sort_order'),
-    ]);
+  const [
+    { data: participantRows, error: participantsError },
+    { data: taskRows, error: tasksError },
+    { data: costRows, error: costsError },
+    { data: documentRows, error: documentsError },
+  ] = await Promise.all([
+    supabase.from('participants').select('*').eq('session_code', code).order('joined_at'),
+    supabase.from('tasks').select('*').eq('session_code', code).order('sort_order'),
+    supabase.from('costs').select('*').eq('session_code', code).order('at'),
+    supabase.from('documents').select('*').eq('session_code', code).order('at'),
+  ]);
   if (participantsError) throw participantsError;
   if (tasksError) throw tasksError;
+  if (costsError) throw costsError;
+  if (documentsError) throw documentsError;
 
   return {
     session: rowToSessionMeta(sessionRow),
     participants: (participantRows ?? []).map(rowToParticipant),
     tasks: (taskRows ?? []).map(rowToTask),
+    costs: (costRows ?? []).map(rowToCost),
+    documents: (documentRows ?? []).map(rowToDocument),
   };
 }
 
@@ -209,6 +252,16 @@ export function subscribeToSession(
     .on(
       'postgres_changes',
       { event: '*', schema: 'public', table: 'tasks', filter: `session_code=eq.${code}` },
+      refetch,
+    )
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'costs', filter: `session_code=eq.${code}` },
+      refetch,
+    )
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'documents', filter: `session_code=eq.${code}` },
       refetch,
     )
     .subscribe();
@@ -371,5 +424,70 @@ export async function setTaskLocation(
     .update({ location: location || null })
     .eq('session_code', code)
     .eq('id', taskId);
+  if (error) throw error;
+}
+
+// --- session details -------------------------------------------------------
+
+export async function updateSessionDetails(
+  code: string,
+  fields: {
+    deceasedName?: string;
+    diedAt?: string;
+    deathLocation?: string;
+    masjidName?: string;
+    cemeteryName?: string;
+    coordinatorName?: string;
+    coordinatorPhone?: string;
+  },
+): Promise<void> {
+  const { error } = await supabase
+    .from('sessions')
+    .update({
+      deceased_name: fields.deceasedName || null,
+      died_at: fields.diedAt || null,
+      death_location: fields.deathLocation || null,
+      masjid_name: fields.masjidName || null,
+      cemetery_name: fields.cemeteryName || null,
+      coordinator_name: fields.coordinatorName || null,
+      coordinator_phone: fields.coordinatorPhone || null,
+    })
+    .eq('code', code);
+  if (error) throw error;
+}
+
+// --- records: costs & documents ---------------------------------------------
+
+export async function addCost(
+  code: string,
+  fields: { label: string; amount: number; paidByPid: Pid; paidByName: string },
+  by: { pid: Pid; name: string },
+): Promise<void> {
+  const { error } = await supabase.from('costs').insert({
+    session_code: code,
+    label: fields.label,
+    amount: fields.amount,
+    paid_by_pid: fields.paidByPid,
+    paid_by_name: fields.paidByName,
+    at: nowIso(),
+    added_by_pid: by.pid,
+    added_by_name: by.name,
+  });
+  if (error) throw error;
+}
+
+export async function addDocument(
+  code: string,
+  fields: { title: string; note: string },
+  by: { pid: Pid; name: string },
+): Promise<void> {
+  const { error } = await supabase.from('documents').insert({
+    session_code: code,
+    title: fields.title,
+    note: fields.note,
+    added_by_pid: by.pid,
+    added_by_name: by.name,
+    at: nowIso(),
+  });
   if (error) throw error;
 }

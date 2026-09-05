@@ -30,15 +30,44 @@ export interface Task {
   location: string | null;
 }
 
+export interface Cost {
+  id: string;
+  label: string;
+  amount: number;
+  paidByPid: Pid;
+  paidByName: string;
+  at: string;
+  addedByPid: Pid;
+  addedByName: string;
+}
+
+export interface DocumentEntry {
+  id: string;
+  title: string;
+  note: string;
+  addedByPid: Pid;
+  addedByName: string;
+  at: string;
+}
+
 export interface SessionMeta {
   code: string;
   createdAt: string;
   createdByPid: Pid;
   createdByName: string;
+  deceasedName: string | null;
+  diedAt: string | null;
+  deathLocation: string | null;
+  masjidName: string | null;
+  cemeteryName: string | null;
+  coordinatorName: string | null;
+  coordinatorPhone: string | null;
 }
 
 export interface SessionState {
   session: SessionMeta;
   participants: Participant[];
   tasks: Task[];
+  costs: Cost[];
+  documents: DocumentEntry[];
 }
