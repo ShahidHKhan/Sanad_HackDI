@@ -64,10 +64,19 @@ export interface SessionMeta {
   coordinatorPhone: string | null;
 }
 
+export interface ChatMessage {
+  id: string;
+  text: string;
+  at: string;
+  senderPid: Pid;
+  senderName: string;
+}
+
 export interface SessionState {
   session: SessionMeta;
   participants: Participant[];
   tasks: Task[];
   costs: Cost[];
   documents: DocumentEntry[];
+  chatMessages: ChatMessage[];
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { AnnounceTab } from '../components/announce/AnnounceTab';
+import { ChatDrawer } from '../components/ChatDrawer';
 import { CodeBadge } from '../components/CodeBadge';
 import { ErrorState } from '../components/ErrorState';
 import { GuidanceDrawer } from '../components/GuidanceDrawer';
@@ -10,6 +11,7 @@ import { RecordsTab } from '../components/records/RecordsTab';
 import { SessionDetailsModal } from '../components/SessionDetailsModal';
 import { TasksTab } from '../components/tasks/TasksTab';
 import { useSessionState } from '../hooks/useSessionState';
+import * as chatSeen from '../lib/chatSeen';
 import * as membership from '../lib/membership';
 
 type TabId = 'overview' | 'tasks' | 'records' | 'announce';
@@ -22,6 +24,7 @@ export function SessionPage() {
   const [joinedTick, setJoinedTick] = useState(0);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [guidanceOpen, setGuidanceOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   if (status === 'loading') {
     return <div className="loading-state">Loading…</div>;
@@ -54,12 +57,28 @@ export function SessionPage() {
   }
 
   const by = { pid: member.pid, name: member.name };
+  const lastSeenChat = chatSeen.getLastSeen(normalizedCode);
+  const hasUnreadChat = state.chatMessages.some(
+    (m) => !lastSeenChat || new Date(m.at) > new Date(lastSeenChat),
+  );
 
   return (
     <div className="session-page">
       <header className="session-header">
         <CodeBadge code={normalizedCode} />
         <div className="session-header-actions">
+          <button
+            type="button"
+            className="icon-button chat-trigger"
+            aria-label="Open chat"
+            onClick={() => {
+              chatSeen.markSeen(normalizedCode);
+              setChatOpen(true);
+            }}
+          >
+            💬
+            {hasUnreadChat && <span className="unread-dot" />}
+          </button>
           <button
             type="button"
             className="icon-button"
@@ -130,6 +149,15 @@ export function SessionPage() {
       )}
 
       {guidanceOpen && <GuidanceDrawer onClose={() => setGuidanceOpen(false)} />}
+
+      {chatOpen && (
+        <ChatDrawer
+          code={normalizedCode}
+          messages={state.chatMessages}
+          by={by}
+          onClose={() => setChatOpen(false)}
+        />
+      )}
     </div>
   );
 }

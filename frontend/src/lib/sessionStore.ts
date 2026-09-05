@@ -7,6 +7,7 @@ import { supabase } from './supabase';
 import { generateCode } from './code';
 import { seedTasks } from '../data/defaultTasks';
 import type {
+  ChatMessage,
   Cost,
   DocumentEntry,
   Participant,
@@ -71,6 +72,16 @@ function rowToDocument(row: any): DocumentEntry {
     addedByPid: row.added_by_pid,
     addedByName: row.added_by_name,
     at: row.at,
+  };
+}
+
+function rowToChatMessage(row: any): ChatMessage {
+  return {
+    id: row.id,
+    text: row.text,
+    at: row.at,
+    senderPid: row.sender_pid,
+    senderName: row.sender_name,
   };
 }
 
@@ -167,16 +178,19 @@ export async function getSession(code: string): Promise<SessionState | null> {
     { data: taskRows, error: tasksError },
     { data: costRows, error: costsError },
     { data: documentRows, error: documentsError },
+    { data: chatRows, error: chatError },
   ] = await Promise.all([
     supabase.from('participants').select('*').eq('session_code', code).order('joined_at'),
     supabase.from('tasks').select('*').eq('session_code', code).order('sort_order'),
     supabase.from('costs').select('*').eq('session_code', code).order('at'),
     supabase.from('documents').select('*').eq('session_code', code).order('at'),
+    supabase.from('chat_messages').select('*').eq('session_code', code).order('at'),
   ]);
   if (participantsError) throw participantsError;
   if (tasksError) throw tasksError;
   if (costsError) throw costsError;
   if (documentsError) throw documentsError;
+  if (chatError) throw chatError;
 
   return {
     session: rowToSessionMeta(sessionRow),
@@ -184,6 +198,7 @@ export async function getSession(code: string): Promise<SessionState | null> {
     tasks: (taskRows ?? []).map(rowToTask),
     costs: (costRows ?? []).map(rowToCost),
     documents: (documentRows ?? []).map(rowToDocument),
+    chatMessages: (chatRows ?? []).map(rowToChatMessage),
   };
 }
 
@@ -262,6 +277,11 @@ export function subscribeToSession(
     .on(
       'postgres_changes',
       { event: '*', schema: 'public', table: 'documents', filter: `session_code=eq.${code}` },
+      refetch,
+    )
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'chat_messages', filter: `session_code=eq.${code}` },
       refetch,
     )
     .subscribe();
@@ -488,6 +508,23 @@ export async function addDocument(
     added_by_pid: by.pid,
     added_by_name: by.name,
     at: nowIso(),
+  });
+  if (error) throw error;
+}
+
+// --- chat --------------------------------------------------------------
+
+export async function sendChatMessage(
+  code: string,
+  text: string,
+  by: { pid: Pid; name: string },
+): Promise<void> {
+  const { error } = await supabase.from('chat_messages').insert({
+    session_code: code,
+    text,
+    at: nowIso(),
+    sender_pid: by.pid,
+    sender_name: by.name,
   });
   if (error) throw error;
 }
