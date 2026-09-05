@@ -1,12 +1,19 @@
-// THE swap boundary. Every function here is a plain async call with a
-// signature that already looks like what it'll be once it calls Supabase.
-// Right now, everything reads/writes one JSON blob per session in
-// localStorage via localDb.ts. When Supabase lands, only the bodies below
-// change — every signature and every caller stays untouched.
-import * as localDb from './localDb';
+// THE swap boundary. Every function here is a plain async call — components
+// and hooks (useSessionState.ts) only ever import from here, never from
+// Supabase directly. That's what made this swap (localStorage -> Supabase)
+// a one-file change: every signature below is unchanged from the
+// localStorage version, only the bodies now call Postgres.
+import { supabase } from './supabase';
 import { generateCode } from './code';
 import { seedTasks } from '../data/defaultTasks';
-import type { Pid, SessionState, Task, TaskGroupName } from '../types/domain';
+import type {
+  Participant,
+  Pid,
+  SessionMeta,
+  SessionState,
+  Task,
+  TaskGroupName,
+} from '../types/domain';
 
 export class SessionNotFoundError extends Error {
   constructor(code: string) {
@@ -19,44 +26,122 @@ function nowIso(): string {
   return new Date().toISOString();
 }
 
-async function mutate(
-  code: string,
-  fn: (state: SessionState) => SessionState,
-): Promise<SessionState> {
-  const current = localDb.readBlob(code);
-  if (!current) throw new SessionNotFoundError(code);
-  const next = fn(current);
-  localDb.writeBlob(code, next);
-  return next;
+// --- row <-> domain mappers -------------------------------------------
+
+function rowToSessionMeta(row: any): SessionMeta {
+  return {
+    code: row.code,
+    createdAt: row.created_at,
+    createdByPid: row.created_by_pid,
+    createdByName: row.created_by_name,
+  };
 }
+
+function rowToParticipant(row: any): Participant {
+  return { pid: row.pid, name: row.name, joinedAt: row.joined_at };
+}
+
+function rowToTask(row: any): Task {
+  return {
+    id: row.id,
+    title: row.title,
+    group: row.group_name as TaskGroupName,
+    sortOrder: row.sort_order,
+    claimedByPid: row.claimed_by_pid,
+    claimedByName: row.claimed_by_name,
+    claimedAt: row.claimed_at,
+    done: row.done,
+    doneByPid: row.done_by_pid,
+    doneByName: row.done_by_name,
+    doneAt: row.done_at,
+    delegateNote: row.delegate_note,
+    pinned: row.pinned,
+    location: row.location,
+  };
+}
+
+function taskToRow(sessionCode: string, task: Task) {
+  return {
+    id: task.id,
+    session_code: sessionCode,
+    title: task.title,
+    group_name: task.group,
+    sort_order: task.sortOrder,
+    claimed_by_pid: task.claimedByPid,
+    claimed_by_name: task.claimedByName,
+    claimed_at: task.claimedAt,
+    done: task.done,
+    done_by_pid: task.doneByPid,
+    done_by_name: task.doneByName,
+    done_at: task.doneAt,
+    delegate_note: task.delegateNote,
+    pinned: task.pinned,
+    location: task.location,
+  };
+}
+
+// --- session mechanic ---------------------------------------------------
 
 export async function createSession(
   creatorPid: Pid,
   creatorName: string,
 ): Promise<string> {
   let code = generateCode();
-  while (localDb.readBlob(code) !== null) {
-    code = generateCode();
+  let attempts = 0;
+  for (;;) {
+    const { error } = await supabase.from('sessions').insert({
+      code,
+      created_at: nowIso(),
+      created_by_pid: creatorPid,
+      created_by_name: creatorName,
+    });
+    if (!error) break;
+    attempts += 1;
+    if (error.code === '23505' && attempts < 5) {
+      code = generateCode();
+      continue;
+    }
+    throw error;
   }
 
-  const timestamp = nowIso();
-  const state: SessionState = {
-    session: {
-      code,
-      createdAt: timestamp,
-      createdByPid: creatorPid,
-      createdByName: creatorName,
-    },
-    participants: [{ pid: creatorPid, name: creatorName, joinedAt: timestamp }],
-    tasks: seedTasks(),
-  };
+  const { error: participantError } = await supabase.from('participants').insert({
+    session_code: code,
+    pid: creatorPid,
+    name: creatorName,
+    joined_at: nowIso(),
+  });
+  if (participantError) throw participantError;
 
-  localDb.writeBlob(code, state);
+  const { error: tasksError } = await supabase
+    .from('tasks')
+    .insert(seedTasks().map((t) => taskToRow(code, t)));
+  if (tasksError) throw tasksError;
+
   return code;
 }
 
 export async function getSession(code: string): Promise<SessionState | null> {
-  return localDb.readBlob(code);
+  const { data: sessionRow, error: sessionError } = await supabase
+    .from('sessions')
+    .select('*')
+    .eq('code', code)
+    .maybeSingle();
+  if (sessionError) throw sessionError;
+  if (!sessionRow) return null;
+
+  const [{ data: participantRows, error: participantsError }, { data: taskRows, error: tasksError }] =
+    await Promise.all([
+      supabase.from('participants').select('*').eq('session_code', code).order('joined_at'),
+      supabase.from('tasks').select('*').eq('session_code', code).order('sort_order'),
+    ]);
+  if (participantsError) throw participantsError;
+  if (tasksError) throw tasksError;
+
+  return {
+    session: rowToSessionMeta(sessionRow),
+    participants: (participantRows ?? []).map(rowToParticipant),
+    tasks: (taskRows ?? []).map(rowToTask),
+  };
 }
 
 export async function joinSession(
@@ -64,34 +149,82 @@ export async function joinSession(
   pid: Pid,
   name: string,
 ): Promise<SessionState> {
-  return mutate(code, (state) => {
-    const existing = state.participants.find((p) => p.pid === pid);
-    if (existing) {
-      existing.name = name;
-      return { ...state, participants: [...state.participants] };
-    }
-    return {
-      ...state,
-      participants: [
-        ...state.participants,
-        { pid, name, joinedAt: nowIso() },
-      ],
-    };
-  });
+  const { data: existing, error: findError } = await supabase
+    .from('participants')
+    .select('id')
+    .eq('session_code', code)
+    .eq('pid', pid)
+    .maybeSingle();
+  if (findError) throw findError;
+
+  if (existing) {
+    const { error } = await supabase
+      .from('participants')
+      .update({ name })
+      .eq('session_code', code)
+      .eq('pid', pid);
+    if (error) throw error;
+  } else {
+    const { error } = await supabase
+      .from('participants')
+      .insert({ session_code: code, pid, name, joined_at: nowIso() });
+    if (error) throw error;
+  }
+
+  const state = await getSession(code);
+  if (!state) throw new SessionNotFoundError(code);
+  return state;
 }
 
 export function subscribeToSession(
   code: string,
   onChange: (state: SessionState | null) => void,
 ): () => void {
-  return localDb.subscribe(code, () => onChange(localDb.readBlob(code)));
+  const POLL_INTERVAL_MS = 5000;
+  let cancelled = false;
+
+  const refetch = () => {
+    if (cancelled) return;
+    getSession(code)
+      .then((state) => {
+        if (!cancelled) onChange(state);
+      })
+      .catch(() => {
+        // transient network hiccup — the poll fallback will retry
+      });
+  };
+
+  const channel = supabase
+    .channel(`session:${code}`)
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'sessions', filter: `code=eq.${code}` },
+      refetch,
+    )
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'participants', filter: `session_code=eq.${code}` },
+      refetch,
+    )
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'tasks', filter: `session_code=eq.${code}` },
+      refetch,
+    )
+    .subscribe();
+
+  // Defensive fallback — same philosophy as everywhere else: if Realtime
+  // misbehaves, a slow poll still gets everyone to the right state.
+  const pollId = window.setInterval(refetch, POLL_INTERVAL_MS);
+
+  return () => {
+    cancelled = true;
+    supabase.removeChannel(channel);
+    window.clearInterval(pollId);
+  };
 }
 
-function findTask(state: SessionState, taskId: string): Task {
-  const task = state.tasks.find((t) => t.id === taskId);
-  if (!task) throw new Error(`Task not found: ${taskId}`);
-  return task;
-}
+// --- tasks ---------------------------------------------------------------
 
 export async function claimTask(
   code: string,
@@ -99,49 +232,33 @@ export async function claimTask(
   pid: Pid,
   name: string,
 ): Promise<boolean> {
-  if (typeof navigator !== 'undefined' && navigator.locks) {
-    return navigator.locks.request(`sanad:session:${code}`, () =>
-      claimTaskUnlocked(code, taskId, pid, name),
-    );
-  }
-  return claimTaskUnlocked(code, taskId, pid, name);
-}
+  const { data: existing, error: findError } = await supabase
+    .from('tasks')
+    .select('claimed_by_pid')
+    .eq('session_code', code)
+    .eq('id', taskId)
+    .maybeSingle();
+  if (findError) throw findError;
+  if (existing?.claimed_by_pid === pid) return true; // idempotent re-claim
 
-function claimTaskUnlocked(
-  code: string,
-  taskId: string,
-  pid: Pid,
-  name: string,
-): boolean {
-  const current = localDb.readBlob(code);
-  if (!current) throw new SessionNotFoundError(code);
-  const task = findTask(current, taskId);
-
-  if (task.claimedByPid && task.claimedByPid !== pid) {
-    return false;
-  }
-  if (task.claimedByPid === pid) {
-    return true; // idempotent re-claim by the same device
-  }
-
-  const nextTasks = current.tasks.map((t) =>
-    t.id === taskId
-      ? { ...t, claimedByPid: pid, claimedByName: name, claimedAt: nowIso() }
-      : t,
-  );
-  localDb.writeBlob(code, { ...current, tasks: nextTasks });
-  return true;
+  const { data, error } = await supabase
+    .from('tasks')
+    .update({ claimed_by_pid: pid, claimed_by_name: name, claimed_at: nowIso() })
+    .eq('session_code', code)
+    .eq('id', taskId)
+    .is('claimed_by_pid', null)
+    .select();
+  if (error) throw error;
+  return (data?.length ?? 0) > 0; // zero rows back = someone else beat us to it
 }
 
 export async function releaseTask(code: string, taskId: string): Promise<void> {
-  await mutate(code, (state) => ({
-    ...state,
-    tasks: state.tasks.map((t) =>
-      t.id === taskId
-        ? { ...t, claimedByPid: null, claimedByName: null, claimedAt: null }
-        : t,
-    ),
-  }));
+  const { error } = await supabase
+    .from('tasks')
+    .update({ claimed_by_pid: null, claimed_by_name: null, claimed_at: null })
+    .eq('session_code', code)
+    .eq('id', taskId);
+  if (error) throw error;
 }
 
 export async function setTaskDone(
@@ -150,20 +267,17 @@ export async function setTaskDone(
   done: boolean,
   by: { pid: Pid; name: string } | null,
 ): Promise<void> {
-  await mutate(code, (state) => ({
-    ...state,
-    tasks: state.tasks.map((t) =>
-      t.id === taskId
-        ? {
-            ...t,
-            done,
-            doneByPid: done ? (by?.pid ?? null) : null,
-            doneByName: done ? (by?.name ?? null) : null,
-            doneAt: done ? nowIso() : null,
-          }
-        : t,
-    ),
-  }));
+  const { error } = await supabase
+    .from('tasks')
+    .update({
+      done,
+      done_by_pid: done ? (by?.pid ?? null) : null,
+      done_by_name: done ? (by?.name ?? null) : null,
+      done_at: done ? nowIso() : null,
+    })
+    .eq('session_code', code)
+    .eq('id', taskId);
+  if (error) throw error;
 }
 
 export async function setTaskDelegateNote(
@@ -171,39 +285,44 @@ export async function setTaskDelegateNote(
   taskId: string,
   note: string,
 ): Promise<void> {
-  await mutate(code, (state) => ({
-    ...state,
-    tasks: state.tasks.map((t) =>
-      t.id === taskId ? { ...t, delegateNote: note } : t,
-    ),
-  }));
+  const { error } = await supabase
+    .from('tasks')
+    .update({ delegate_note: note })
+    .eq('session_code', code)
+    .eq('id', taskId);
+  if (error) throw error;
 }
 
 export async function addTask(
   code: string,
   fields: { title: string; group: TaskGroupName },
 ): Promise<string> {
+  const { data: rows, error: fetchError } = await supabase
+    .from('tasks')
+    .select('sort_order')
+    .eq('session_code', code);
+  if (fetchError) throw fetchError;
+  const maxSortOrder = (rows ?? []).reduce((max, r) => Math.max(max, r.sort_order), -1);
+
   const id = crypto.randomUUID();
-  await mutate(code, (state) => {
-    const maxSortOrder = state.tasks.reduce((max, t) => Math.max(max, t.sortOrder), -1);
-    const newTask: Task = {
-      id,
-      title: fields.title,
-      group: fields.group,
-      sortOrder: maxSortOrder + 1,
-      claimedByPid: null,
-      claimedByName: null,
-      claimedAt: null,
-      done: false,
-      doneByPid: null,
-      doneByName: null,
-      doneAt: null,
-      delegateNote: '',
-      pinned: false,
-      location: null,
-    };
-    return { ...state, tasks: [...state.tasks, newTask] };
+  const { error } = await supabase.from('tasks').insert({
+    id,
+    session_code: code,
+    title: fields.title,
+    group_name: fields.group,
+    sort_order: maxSortOrder + 1,
+    claimed_by_pid: null,
+    claimed_by_name: null,
+    claimed_at: null,
+    done: false,
+    done_by_pid: null,
+    done_by_name: null,
+    done_at: null,
+    delegate_note: '',
+    pinned: false,
+    location: null,
   });
+  if (error) throw error;
   return id;
 }
 
@@ -212,19 +331,21 @@ export async function editTask(
   taskId: string,
   fields: { title: string; group: TaskGroupName },
 ): Promise<void> {
-  await mutate(code, (state) => ({
-    ...state,
-    tasks: state.tasks.map((t) =>
-      t.id === taskId ? { ...t, title: fields.title, group: fields.group } : t,
-    ),
-  }));
+  const { error } = await supabase
+    .from('tasks')
+    .update({ title: fields.title, group_name: fields.group })
+    .eq('session_code', code)
+    .eq('id', taskId);
+  if (error) throw error;
 }
 
 export async function removeTask(code: string, taskId: string): Promise<void> {
-  await mutate(code, (state) => ({
-    ...state,
-    tasks: state.tasks.filter((t) => t.id !== taskId),
-  }));
+  const { error } = await supabase
+    .from('tasks')
+    .delete()
+    .eq('session_code', code)
+    .eq('id', taskId);
+  if (error) throw error;
 }
 
 export async function setTaskPinned(
@@ -232,10 +353,12 @@ export async function setTaskPinned(
   taskId: string,
   pinned: boolean,
 ): Promise<void> {
-  await mutate(code, (state) => ({
-    ...state,
-    tasks: state.tasks.map((t) => (t.id === taskId ? { ...t, pinned } : t)),
-  }));
+  const { error } = await supabase
+    .from('tasks')
+    .update({ pinned })
+    .eq('session_code', code)
+    .eq('id', taskId);
+  if (error) throw error;
 }
 
 export async function setTaskLocation(
@@ -243,10 +366,10 @@ export async function setTaskLocation(
   taskId: string,
   location: string,
 ): Promise<void> {
-  await mutate(code, (state) => ({
-    ...state,
-    tasks: state.tasks.map((t) =>
-      t.id === taskId ? { ...t, location: location || null } : t,
-    ),
-  }));
+  const { error } = await supabase
+    .from('tasks')
+    .update({ location: location || null })
+    .eq('session_code', code)
+    .eq('id', taskId);
+  if (error) throw error;
 }
