@@ -7,7 +7,7 @@ import * as localDb from './localDb';
 import { generateCode } from './code';
 import { STEP_DEFS } from '../data/steps';
 import { seedTasks } from '../data/defaultTasks';
-import type { Pid, SessionState, StepId, Task } from '../types/domain';
+import type { Pid, SessionState, StepInfo, Task, TaskGroupName } from '../types/domain';
 
 export class SessionNotFoundError extends Error {
   constructor(code: string) {
@@ -52,6 +52,8 @@ export async function createSession(
     tasks: seedTasks(),
     steps: STEP_DEFS.map((def) => ({
       id: def.id,
+      label: def.label,
+      staticNote: def.staticNote ?? null,
       status: 'tbd',
       at: null,
       location: null,
@@ -192,7 +194,7 @@ export async function setTaskDelegateNote(
 
 export async function confirmStep(
   code: string,
-  stepId: StepId,
+  stepId: string,
   fields: { at: string; location?: string; note?: string },
   by: { pid: Pid; name: string },
 ): Promise<void> {
@@ -215,7 +217,7 @@ export async function confirmStep(
   }));
 }
 
-export async function markStepTBD(code: string, stepId: StepId): Promise<void> {
+export async function markStepTBD(code: string, stepId: string): Promise<void> {
   await mutate(code, (state) => ({
     ...state,
     steps: state.steps.map((s) =>
@@ -232,5 +234,96 @@ export async function markStepTBD(code: string, stepId: StepId): Promise<void> {
           }
         : s,
     ),
+  }));
+}
+
+export async function addTask(
+  code: string,
+  fields: { title: string; group: TaskGroupName },
+): Promise<string> {
+  const id = crypto.randomUUID();
+  await mutate(code, (state) => {
+    const maxSortOrder = state.tasks.reduce((max, t) => Math.max(max, t.sortOrder), -1);
+    const newTask: Task = {
+      id,
+      title: fields.title,
+      group: fields.group,
+      sortOrder: maxSortOrder + 1,
+      claimedByPid: null,
+      claimedByName: null,
+      claimedAt: null,
+      done: false,
+      doneByPid: null,
+      doneByName: null,
+      doneAt: null,
+      delegateNote: '',
+    };
+    return { ...state, tasks: [...state.tasks, newTask] };
+  });
+  return id;
+}
+
+export async function editTask(
+  code: string,
+  taskId: string,
+  fields: { title: string; group: TaskGroupName },
+): Promise<void> {
+  await mutate(code, (state) => ({
+    ...state,
+    tasks: state.tasks.map((t) =>
+      t.id === taskId ? { ...t, title: fields.title, group: fields.group } : t,
+    ),
+  }));
+}
+
+export async function removeTask(code: string, taskId: string): Promise<void> {
+  await mutate(code, (state) => ({
+    ...state,
+    tasks: state.tasks.filter((t) => t.id !== taskId),
+  }));
+}
+
+export async function addStep(
+  code: string,
+  fields: { label: string; staticNote?: string },
+): Promise<string> {
+  const id = crypto.randomUUID();
+  await mutate(code, (state) => {
+    const newStep: StepInfo = {
+      id,
+      label: fields.label,
+      staticNote: fields.staticNote ?? null,
+      status: 'tbd',
+      at: null,
+      location: null,
+      note: null,
+      confirmedByPid: null,
+      confirmedByName: null,
+      updatedAt: null,
+    };
+    return { ...state, steps: [...state.steps, newStep] };
+  });
+  return id;
+}
+
+export async function editStep(
+  code: string,
+  stepId: string,
+  fields: { label: string; staticNote?: string },
+): Promise<void> {
+  await mutate(code, (state) => ({
+    ...state,
+    steps: state.steps.map((s) =>
+      s.id === stepId
+        ? { ...s, label: fields.label, staticNote: fields.staticNote ?? null }
+        : s,
+    ),
+  }));
+}
+
+export async function removeStep(code: string, stepId: string): Promise<void> {
+  await mutate(code, (state) => ({
+    ...state,
+    steps: state.steps.filter((s) => s.id !== stepId),
   }));
 }

@@ -1,12 +1,12 @@
-import type { StepId } from '../types/domain';
-
 export interface StepDef {
-  id: StepId;
+  id: string;
   label: string;
   staticNote?: string;
 }
 
-// Fixed order per MVP.md §2 — never re-sort this list.
+// Seed data only — used once by sessionStore.createSession. Session state
+// (state.steps) is authoritative for order/labels/notes after that; nothing
+// else should import STEP_DEFS.
 export const STEP_DEFS: StepDef[] = [
   { id: 'me_release', label: 'Medical examiner/physician releases the body' },
   { id: 'transport', label: 'Transport to funeral home' },

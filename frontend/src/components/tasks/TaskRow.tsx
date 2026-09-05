@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { GROUP_ORDER } from '../../data/defaultTasks';
 import * as sessionStore from '../../lib/sessionStore';
-import type { Task } from '../../types/domain';
+import type { Task, TaskGroupName } from '../../types/domain';
 
 interface TaskRowProps {
   code: string;
@@ -11,6 +12,9 @@ interface TaskRowProps {
 export function TaskRow({ code, task, by }: TaskRowProps) {
   const [noteDraft, setNoteDraft] = useState(task.delegateNote);
   const [error, setError] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [titleDraft, setTitleDraft] = useState(task.title);
+  const [groupDraft, setGroupDraft] = useState<TaskGroupName>(task.group);
 
   const claimedByMe = task.claimedByPid === by.pid;
   const claimedBySomeoneElse = !!task.claimedByPid && !claimedByMe;
@@ -19,6 +23,57 @@ export function TaskRow({ code, task, by }: TaskRowProps) {
     setError(null);
     const ok = await sessionStore.claimTask(code, task.id, by.pid, by.name);
     if (!ok) setError(`Already claimed by ${task.claimedByName}`);
+  }
+
+  function startEditing() {
+    setTitleDraft(task.title);
+    setGroupDraft(task.group);
+    setEditing(true);
+  }
+
+  function saveEdit() {
+    if (!titleDraft.trim()) return;
+    sessionStore.editTask(code, task.id, { title: titleDraft.trim(), group: groupDraft });
+    setEditing(false);
+  }
+
+  function handleRemove() {
+    if (window.confirm(`Remove "${task.title}"?`)) {
+      sessionStore.removeTask(code, task.id);
+    }
+  }
+
+  if (editing) {
+    return (
+      <div className="task-row task-edit-form">
+        <label htmlFor={`task-title-${task.id}`}>Title</label>
+        <input
+          id={`task-title-${task.id}`}
+          value={titleDraft}
+          onChange={(e) => setTitleDraft(e.target.value)}
+        />
+        <label htmlFor={`task-group-${task.id}`}>Group</label>
+        <select
+          id={`task-group-${task.id}`}
+          value={groupDraft}
+          onChange={(e) => setGroupDraft(e.target.value as TaskGroupName)}
+        >
+          {GROUP_ORDER.map((group) => (
+            <option key={group} value={group}>
+              {group}
+            </option>
+          ))}
+        </select>
+        <div className="modal-actions">
+          <button type="button" onClick={() => setEditing(false)}>
+            Cancel
+          </button>
+          <button type="button" onClick={saveEdit}>
+            Save
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -51,6 +106,12 @@ export function TaskRow({ code, task, by }: TaskRowProps) {
             Claim
           </button>
         )}
+        <button type="button" onClick={startEditing}>
+          Edit
+        </button>
+        <button type="button" className="btn-danger" onClick={handleRemove}>
+          Remove
+        </button>
       </div>
 
       {error && <p className="form-error">{error}</p>}

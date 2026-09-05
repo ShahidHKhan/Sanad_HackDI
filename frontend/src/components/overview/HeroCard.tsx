@@ -1,22 +1,30 @@
 import type { StepInfo } from '../../types/domain';
 
 interface HeroCardProps {
-  burialStep: StepInfo | undefined;
+  lastStep: StepInfo | undefined;
 }
 
-export function HeroCard({ burialStep }: HeroCardProps) {
-  const confirmed = burialStep?.status === 'confirmed';
+export function HeroCard({ lastStep }: HeroCardProps) {
+  if (!lastStep) {
+    return (
+      <div className="hero-card">
+        <span className="hero-card-value hero-card-tbd">No steps yet</span>
+      </div>
+    );
+  }
+
+  const confirmed = lastStep.status === 'confirmed';
 
   return (
     <div className="hero-card">
-      <span className="hero-card-label">Burial</span>
+      <span className="hero-card-label">{lastStep.label}</span>
       {confirmed ? (
         <>
           <span className="hero-card-value">
-            {new Date(burialStep!.at!).toLocaleString()}
+            {new Date(lastStep.at!).toLocaleString()}
           </span>
-          {burialStep!.location && (
-            <span className="hero-card-location">{burialStep!.location}</span>
+          {lastStep.location && (
+            <span className="hero-card-location">{lastStep.location}</span>
           )}
         </>
       ) : (

@@ -28,17 +28,10 @@ export interface Task {
   delegateNote: string;
 }
 
-export type StepId =
-  | 'me_release'
-  | 'transport'
-  | 'ghusl_kafan'
-  | 'burial_permit'
-  | 'cemetery_confirm'
-  | 'janazah'
-  | 'burial';
-
 export interface StepInfo {
-  id: StepId;
+  id: string;
+  label: string;
+  staticNote: string | null;
   status: 'tbd' | 'confirmed';
   at: string | null;
   location: string | null;

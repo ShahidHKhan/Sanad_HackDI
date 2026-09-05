@@ -1,5 +1,5 @@
-import { STEP_DEFS } from '../../data/steps';
 import type { SessionState } from '../../types/domain';
+import { AddStepForm } from './AddStepForm';
 import { BlockerBanner } from './BlockerBanner';
 import { HeroCard } from './HeroCard';
 import { StepRow } from './StepRow';
@@ -11,22 +11,18 @@ interface OverviewTabProps {
 }
 
 export function OverviewTab({ code, state, by }: OverviewTabProps) {
-  const byId = new Map(state.steps.map((s) => [s.id, s]));
-  const burialStep = byId.get('burial');
+  const lastStep = state.steps[state.steps.length - 1];
 
   return (
     <div className="overview-tab">
-      <HeroCard burialStep={burialStep} />
+      <HeroCard lastStep={lastStep} />
       <BlockerBanner steps={state.steps} />
       <div className="step-list">
-        {STEP_DEFS.map((def) => {
-          const info = byId.get(def.id);
-          if (!info) return null;
-          return (
-            <StepRow key={def.id} code={code} def={def} info={info} by={by} />
-          );
-        })}
+        {state.steps.map((info) => (
+          <StepRow key={info.id} code={code} info={info} by={by} />
+        ))}
       </div>
+      <AddStepForm code={code} />
     </div>
   );
 }

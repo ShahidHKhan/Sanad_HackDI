@@ -1,5 +1,6 @@
 import { GROUP_ORDER } from '../../data/defaultTasks';
 import type { SessionState } from '../../types/domain';
+import { AddTaskForm } from './AddTaskForm';
 import { TaskGroup } from './TaskGroup';
 
 interface TasksTabProps {
@@ -20,6 +21,7 @@ export function TasksTab({ code, state, by }: TasksTabProps) {
           by={by}
         />
       ))}
+      <AddTaskForm code={code} />
     </div>
   );
 }
