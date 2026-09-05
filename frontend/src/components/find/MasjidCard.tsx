@@ -32,10 +32,12 @@ export function MasjidCard({ code, masjid, call, isUsed, by }: MasjidCardProps) 
         code={code}
         entryType="masjid"
         entryId={masjid.id}
+        entryLocation={[masjid.name, masjid.town].filter(Boolean).join(', ')}
         call={call}
         isUsed={isUsed}
         useLabel="Use this masjid"
         onUse={() => sessionStore.updateSessionDetails(code, { masjidName: masjid.name })}
+        syncNote="Also marks “Janazah prayer held” done on the family's Overview timeline."
         by={by}
       />
     </div>

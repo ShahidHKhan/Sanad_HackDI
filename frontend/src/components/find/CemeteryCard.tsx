@@ -34,10 +34,12 @@ export function CemeteryCard({ code, cemetery, call, isUsed, by }: CemeteryCardP
         code={code}
         entryType="cemetery"
         entryId={cemetery.id}
+        entryLocation={[cemetery.name, cemetery.town].filter(Boolean).join(', ')}
         call={call}
         isUsed={isUsed}
         useLabel="Use this cemetery"
         onUse={() => sessionStore.updateSessionDetails(code, { cemeteryName: cemetery.name })}
+        syncNote="Also marks “Cemetery confirms the burial slot” done on the family's Overview timeline."
         by={by}
       />
     </div>

@@ -414,6 +414,29 @@ export async function setTaskDone(
   if (error) throw error;
 }
 
+// Sets a pinned Overview task to done with a specific real-world confirmed
+// time (not "now") — used by the Find-tab auto-sync below, where the
+// confirmed date/time is the actual janazah/burial-slot time, which may be
+// well before or after the moment the call was logged. Only touches
+// `location` when one is supplied, so it never overwrites a location a
+// family member already entered manually on the Tasks tab.
+async function setTaskConfirmed(
+  code: string,
+  taskId: string,
+  fields: { at: string; location?: string },
+  by: { pid: Pid; name: string },
+): Promise<void> {
+  const update: Record<string, unknown> = {
+    done: true,
+    done_by_pid: by.pid,
+    done_by_name: by.name,
+    done_at: fields.at,
+  };
+  if (fields.location) update.location = fields.location;
+  const { error } = await supabase.from('tasks').update(update).eq('session_code', code).eq('id', taskId);
+  if (error) throw error;
+}
+
 export async function setTaskDelegateNote(
   code: string,
   taskId: string,
@@ -779,11 +802,21 @@ export function searchNearbyCemeteries(query: string) {
   return searchNearbyPlaces('cemetery', query);
 }
 
+// IMPLEMENTATION.md Phase 5: "Logging an outcome as Confirmed with a time
+// writes into the matching Overview step (masjid -> janazah;
+// cemetery -> cemetery-confirms-slot) — implement it as one function both
+// features call, not duplicated logic." One direction only: a Find
+// confirmation updates Overview; the reverse isn't part of the spec.
+const OVERVIEW_TASK_BY_ENTRY_TYPE: Record<DirectoryEntryType, string> = {
+  masjid: 'janazah-prayer-held',
+  cemetery: 'cemetery-confirms-slot',
+};
+
 export async function logDirectoryOutcome(
   code: string,
   entryType: DirectoryEntryType,
   entryId: string,
-  fields: { outcome: DirectoryOutcome; note: string; confirmedAt: string | null },
+  fields: { outcome: DirectoryOutcome; note: string; confirmedAt: string | null; entryLocation?: string },
   by: { pid: Pid; name: string },
 ): Promise<void> {
   const { error } = await supabase.from('directory_calls').upsert({
@@ -798,4 +831,13 @@ export async function logDirectoryOutcome(
     logged_at: nowIso(),
   });
   if (error) throw error;
+
+  if (fields.outcome === 'confirmed' && fields.confirmedAt) {
+    await setTaskConfirmed(
+      code,
+      OVERVIEW_TASK_BY_ENTRY_TYPE[entryType],
+      { at: fields.confirmedAt, location: fields.entryLocation },
+      by,
+    );
+  }
 }

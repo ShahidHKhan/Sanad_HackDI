@@ -774,6 +774,13 @@ label {
   margin-top: 0.4rem;
 }
 
+.directory-sync-note {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-style: italic;
+  margin: 0;
+}
+
 .directory-outcome {
   display: flex;
   flex-direction: column;

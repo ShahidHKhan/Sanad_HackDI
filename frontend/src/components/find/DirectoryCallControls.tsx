@@ -6,10 +6,12 @@ interface DirectoryCallControlsProps {
   code: string;
   entryType: DirectoryEntryType;
   entryId: string;
+  entryLocation: string;
   call: DirectoryCall | null;
   isUsed: boolean;
   useLabel: string;
   onUse: () => void;
+  syncNote: string;
   by: { pid: string; name: string };
 }
 
@@ -17,10 +19,12 @@ export function DirectoryCallControls({
   code,
   entryType,
   entryId,
+  entryLocation,
   call,
   isUsed,
   useLabel,
   onUse,
+  syncNote,
   by,
 }: DirectoryCallControlsProps) {
   const [loggingOutcome, setLoggingOutcome] = useState(false);
@@ -47,6 +51,7 @@ export function DirectoryCallControls({
         outcome,
         note: note.trim(),
         confirmedAt: outcome === 'confirmed' && confirmedAt ? new Date(confirmedAt).toISOString() : null,
+        entryLocation,
       },
       by,
     );
@@ -95,6 +100,7 @@ export function DirectoryCallControls({
               value={confirmedAt}
               onChange={(e) => setConfirmedAt(e.target.value)}
             />
+            {confirmedAt && <p className="directory-sync-note">{syncNote}</p>}
           </>
         )}
         <label htmlFor={`note-${entryId}`}>Note</label>
