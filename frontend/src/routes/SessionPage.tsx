@@ -5,6 +5,7 @@ import { ChatDrawer } from '../components/ChatDrawer';
 import { CodeBadge } from '../components/CodeBadge';
 import { ErrorState } from '../components/ErrorState';
 import { GuidanceDrawer } from '../components/GuidanceDrawer';
+import { HalfToggle } from '../components/HalfToggle';
 import { JoinByCodeForm } from '../components/JoinByCodeForm';
 import { OverviewTab } from '../components/overview/OverviewTab';
 import { RecordsTab } from '../components/records/RecordsTab';
@@ -118,6 +119,8 @@ export function SessionPage() {
           </button>
         </div>
       </header>
+
+      <HalfToggle code={normalizedCode} active="family" />
 
       <main>
         {tab === 'overview' && <OverviewTab state={state} />}
