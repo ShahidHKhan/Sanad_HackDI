@@ -13,6 +13,8 @@ export interface DefaultTask {
   id: string;
   title: string;
   group: TaskGroupName;
+  pinned?: boolean;
+  delegateNote?: string;
 }
 
 // MVP.md only names two of these tasks explicitly; the rest are a reasonable
@@ -38,6 +40,16 @@ export const DEFAULT_TASKS: DefaultTask[] = [
   { id: 'meal-train', title: 'Set up a meal train / food coordination for the family', group: 'Community' },
   { id: 'coordinate-visitors', title: 'Coordinate visitors and condolence calls', group: 'Community' },
   { id: 'post-announcement', title: 'Post the community announcement (once details are confirmed)', group: 'Community' },
+
+  // Burial-process milestones — pre-pinned so a new session's Overview shows
+  // this timeline immediately, matching the reference design.
+  { id: 'me-releases-body', title: 'Medical examiner or physician releases the body', group: 'Legal & Documents', pinned: true },
+  { id: 'body-transported', title: 'Body transported to the funeral home', group: 'Logistics', pinned: true },
+  { id: 'ghusl-kafan-completed', title: 'Ghusl and kafan completed', group: 'Body & Religious Care', pinned: true },
+  { id: 'burial-permit-issued', title: 'Burial permit issued by the registrar', group: 'Legal & Documents', pinned: true, delegateNote: 'Registrar hours: weekdays, 9am–4pm.' },
+  { id: 'cemetery-confirms-slot', title: 'Cemetery confirms the burial slot', group: 'Logistics', pinned: true, delegateNote: 'Cemetery hours: Mon–Sat, 9am–3pm, closed Sunday.' },
+  { id: 'janazah-prayer-held', title: 'Janazah prayer held', group: 'Body & Religious Care', pinned: true },
+  { id: 'burial-completed', title: 'Burial completed', group: 'Logistics', pinned: true },
 ];
 
 export function seedTasks(): Task[] {
@@ -53,6 +65,8 @@ export function seedTasks(): Task[] {
     doneByPid: null,
     doneByName: null,
     doneAt: null,
-    delegateNote: '',
+    delegateNote: def.delegateNote ?? '',
+    pinned: def.pinned ?? false,
+    location: null,
   }));
 }

@@ -26,19 +26,8 @@ export interface Task {
   doneByName: string | null;
   doneAt: string | null;
   delegateNote: string;
-}
-
-export interface StepInfo {
-  id: string;
-  label: string;
-  staticNote: string | null;
-  status: 'tbd' | 'confirmed';
-  at: string | null;
+  pinned: boolean;
   location: string | null;
-  note: string | null;
-  confirmedByPid: Pid | null;
-  confirmedByName: string | null;
-  updatedAt: string | null;
 }
 
 export interface SessionMeta {
@@ -52,5 +41,4 @@ export interface SessionState {
   session: SessionMeta;
   participants: Participant[];
   tasks: Task[];
-  steps: StepInfo[];
 }

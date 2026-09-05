@@ -1,34 +1,31 @@
-import type { StepInfo } from '../../types/domain';
+import type { Task } from '../../types/domain';
 
 interface HeroCardProps {
-  lastStep: StepInfo | undefined;
+  lastTask: Task;
+  blockerTask: Task | undefined;
 }
 
-export function HeroCard({ lastStep }: HeroCardProps) {
-  if (!lastStep) {
-    return (
-      <div className="hero-card">
-        <span className="hero-card-value hero-card-tbd">No steps yet</span>
-      </div>
-    );
-  }
-
-  const confirmed = lastStep.status === 'confirmed';
-
+export function HeroCard({ lastTask, blockerTask }: HeroCardProps) {
   return (
     <div className="hero-card">
-      <span className="hero-card-label">{lastStep.label}</span>
-      {confirmed ? (
+      <span className="hero-card-label">{lastTask.title}</span>
+      {lastTask.done ? (
         <>
           <span className="hero-card-value">
-            {new Date(lastStep.at!).toLocaleString()}
+            {new Date(lastTask.doneAt!).toLocaleString()}
           </span>
-          {lastStep.location && (
-            <span className="hero-card-location">{lastStep.location}</span>
+          {lastTask.location && (
+            <span className="hero-card-location">{lastTask.location}</span>
           )}
         </>
       ) : (
         <span className="hero-card-value hero-card-tbd">TBD</span>
+      )}
+
+      {blockerTask ? (
+        <div className="blocker-strip">Waiting on: {blockerTask.title}</div>
+      ) : (
+        <div className="blocker-strip blocker-strip-done">All confirmed</div>
       )}
     </div>
   );

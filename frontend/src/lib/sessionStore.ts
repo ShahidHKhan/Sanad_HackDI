@@ -5,9 +5,8 @@
 // change — every signature and every caller stays untouched.
 import * as localDb from './localDb';
 import { generateCode } from './code';
-import { STEP_DEFS } from '../data/steps';
 import { seedTasks } from '../data/defaultTasks';
-import type { Pid, SessionState, StepInfo, Task, TaskGroupName } from '../types/domain';
+import type { Pid, SessionState, Task, TaskGroupName } from '../types/domain';
 
 export class SessionNotFoundError extends Error {
   constructor(code: string) {
@@ -50,18 +49,6 @@ export async function createSession(
     },
     participants: [{ pid: creatorPid, name: creatorName, joinedAt: timestamp }],
     tasks: seedTasks(),
-    steps: STEP_DEFS.map((def) => ({
-      id: def.id,
-      label: def.label,
-      staticNote: def.staticNote ?? null,
-      status: 'tbd',
-      at: null,
-      location: null,
-      note: null,
-      confirmedByPid: null,
-      confirmedByName: null,
-      updatedAt: null,
-    })),
   };
 
   localDb.writeBlob(code, state);
@@ -192,51 +179,6 @@ export async function setTaskDelegateNote(
   }));
 }
 
-export async function confirmStep(
-  code: string,
-  stepId: string,
-  fields: { at: string; location?: string; note?: string },
-  by: { pid: Pid; name: string },
-): Promise<void> {
-  await mutate(code, (state) => ({
-    ...state,
-    steps: state.steps.map((s) =>
-      s.id === stepId
-        ? {
-            ...s,
-            status: 'confirmed',
-            at: fields.at,
-            location: fields.location ?? null,
-            note: fields.note ?? null,
-            confirmedByPid: by.pid,
-            confirmedByName: by.name,
-            updatedAt: nowIso(),
-          }
-        : s,
-    ),
-  }));
-}
-
-export async function markStepTBD(code: string, stepId: string): Promise<void> {
-  await mutate(code, (state) => ({
-    ...state,
-    steps: state.steps.map((s) =>
-      s.id === stepId
-        ? {
-            ...s,
-            status: 'tbd',
-            at: null,
-            location: null,
-            note: null,
-            confirmedByPid: null,
-            confirmedByName: null,
-            updatedAt: null,
-          }
-        : s,
-    ),
-  }));
-}
-
 export async function addTask(
   code: string,
   fields: { title: string; group: TaskGroupName },
@@ -257,6 +199,8 @@ export async function addTask(
       doneByName: null,
       doneAt: null,
       delegateNote: '',
+      pinned: false,
+      location: null,
     };
     return { ...state, tasks: [...state.tasks, newTask] };
   });
@@ -283,47 +227,26 @@ export async function removeTask(code: string, taskId: string): Promise<void> {
   }));
 }
 
-export async function addStep(
+export async function setTaskPinned(
   code: string,
-  fields: { label: string; staticNote?: string },
-): Promise<string> {
-  const id = crypto.randomUUID();
-  await mutate(code, (state) => {
-    const newStep: StepInfo = {
-      id,
-      label: fields.label,
-      staticNote: fields.staticNote ?? null,
-      status: 'tbd',
-      at: null,
-      location: null,
-      note: null,
-      confirmedByPid: null,
-      confirmedByName: null,
-      updatedAt: null,
-    };
-    return { ...state, steps: [...state.steps, newStep] };
-  });
-  return id;
-}
-
-export async function editStep(
-  code: string,
-  stepId: string,
-  fields: { label: string; staticNote?: string },
+  taskId: string,
+  pinned: boolean,
 ): Promise<void> {
   await mutate(code, (state) => ({
     ...state,
-    steps: state.steps.map((s) =>
-      s.id === stepId
-        ? { ...s, label: fields.label, staticNote: fields.staticNote ?? null }
-        : s,
-    ),
+    tasks: state.tasks.map((t) => (t.id === taskId ? { ...t, pinned } : t)),
   }));
 }
 
-export async function removeStep(code: string, stepId: string): Promise<void> {
+export async function setTaskLocation(
+  code: string,
+  taskId: string,
+  location: string,
+): Promise<void> {
   await mutate(code, (state) => ({
     ...state,
-    steps: state.steps.filter((s) => s.id !== stepId),
+    tasks: state.tasks.map((t) =>
+      t.id === taskId ? { ...t, location: location || null } : t,
+    ),
   }));
 }

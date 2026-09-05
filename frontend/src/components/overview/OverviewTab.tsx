@@ -1,28 +1,42 @@
 import type { SessionState } from '../../types/domain';
-import { AddStepForm } from './AddStepForm';
-import { BlockerBanner } from './BlockerBanner';
 import { HeroCard } from './HeroCard';
-import { StepRow } from './StepRow';
+import { TimelineRow } from './TimelineRow';
 
 interface OverviewTabProps {
-  code: string;
   state: SessionState;
-  by: { pid: string; name: string };
 }
 
-export function OverviewTab({ code, state, by }: OverviewTabProps) {
-  const lastStep = state.steps[state.steps.length - 1];
+export function OverviewTab({ state }: OverviewTabProps) {
+  const pinnedTasks = state.tasks
+    .filter((t) => t.pinned)
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+
+  if (pinnedTasks.length === 0) {
+    return (
+      <div className="overview-tab">
+        <p className="overview-empty">
+          No pinned tasks yet. Pin a task from the Tasks page to show it here.
+        </p>
+      </div>
+    );
+  }
+
+  const lastTask = pinnedTasks[pinnedTasks.length - 1];
+  const blockerTask = pinnedTasks.find((t) => !t.done);
 
   return (
     <div className="overview-tab">
-      <HeroCard lastStep={lastStep} />
-      <BlockerBanner steps={state.steps} />
-      <div className="step-list">
-        {state.steps.map((info) => (
-          <StepRow key={info.id} code={code} info={info} by={by} />
+      <HeroCard lastTask={lastTask} blockerTask={blockerTask} />
+      <div className="timeline">
+        {pinnedTasks.map((task, index) => (
+          <TimelineRow
+            key={task.id}
+            task={task}
+            isBlocker={task.id === blockerTask?.id}
+            isLast={index === pinnedTasks.length - 1}
+          />
         ))}
       </div>
-      <AddStepForm code={code} />
     </div>
   );
 }

@@ -11,6 +11,7 @@ interface TaskRowProps {
 
 export function TaskRow({ code, task, by }: TaskRowProps) {
   const [noteDraft, setNoteDraft] = useState(task.delegateNote);
+  const [locationDraft, setLocationDraft] = useState(task.location ?? '');
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [titleDraft, setTitleDraft] = useState(task.title);
@@ -112,6 +113,13 @@ export function TaskRow({ code, task, by }: TaskRowProps) {
         <button type="button" className="btn-danger" onClick={handleRemove}>
           Remove
         </button>
+        <button
+          type="button"
+          className={`pin-button ${task.pinned ? 'active' : ''}`}
+          onClick={() => sessionStore.setTaskPinned(code, task.id, !task.pinned)}
+        >
+          {task.pinned ? '📌 Pinned' : '📌 Pin'}
+        </button>
       </div>
 
       {error && <p className="form-error">{error}</p>}
@@ -127,6 +135,20 @@ export function TaskRow({ code, task, by }: TaskRowProps) {
           }
         }}
       />
+
+      {task.pinned && (
+        <input
+          className="task-location"
+          placeholder="Location (shown on Overview once confirmed)…"
+          value={locationDraft}
+          onChange={(e) => setLocationDraft(e.target.value)}
+          onBlur={() => {
+            if (locationDraft !== (task.location ?? '')) {
+              sessionStore.setTaskLocation(code, task.id, locationDraft);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

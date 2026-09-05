@@ -73,9 +73,7 @@ export function SessionPage() {
       </nav>
 
       <main>
-        {tab === 'overview' && (
-          <OverviewTab code={normalizedCode} state={state} by={by} />
-        )}
+        {tab === 'overview' && <OverviewTab state={state} />}
         {tab === 'tasks' && (
           <TasksTab code={normalizedCode} state={state} by={by} />
         )}
