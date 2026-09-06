@@ -1,17 +1,21 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CodeBadge } from '../components/CodeBadge';
+import { ComingSoonPlaceholder } from '../components/ComingSoonPlaceholder';
 import { ErrorState } from '../components/ErrorState';
 import { FindTab } from '../components/find/FindTab';
 import { HalfToggle } from '../components/HalfToggle';
 import { JoinByCodeForm } from '../components/JoinByCodeForm';
+import { VolunteersTab } from '../components/volunteers/VolunteersTab';
 import { useSessionState } from '../hooks/useSessionState';
 import * as membership from '../lib/membership';
 
-type TabId = 'find';
+type TabId = 'find' | 'logistics' | 'volunteers';
 
 const NAV_ITEMS: { id: TabId; label: string; icon: string }[] = [
   { id: 'find', label: 'Find', icon: '🕌' },
+  { id: 'logistics', label: 'Logistics', icon: '🗒️' },
+  { id: 'volunteers', label: 'Volunteers', icon: '🤝' },
 ];
 
 export function MasjidPage() {
@@ -53,6 +57,7 @@ export function MasjidPage() {
   }
 
   const by = { pid: member.pid, name: member.name };
+  const myRole = state.participants.find((p) => p.pid === member.pid)?.role;
 
   return (
     <div className="session-page">
@@ -78,10 +83,16 @@ export function MasjidPage() {
         </div>
       </header>
 
-      <HalfToggle code={normalizedCode} active="masjid" />
+      <HalfToggle code={normalizedCode} active="masjid" hideFamily={myRole === 'masjid'} />
 
       <main>
         {tab === 'find' && <FindTab code={normalizedCode} state={state} by={by} />}
+        {tab === 'logistics' && (
+          <ComingSoonPlaceholder message="A future home for ghusl facility availability, burial slot confirmation, and related logistics." />
+        )}
+        {tab === 'volunteers' && (
+          <VolunteersTab code={normalizedCode} volunteers={state.volunteers} by={by} />
+        )}
       </main>
 
       <nav className="bottom-nav">

@@ -16,6 +16,7 @@ export function JoinByCodeForm({ fixedCode, onJoined }: JoinByCodeFormProps) {
   const navigate = useNavigate();
   const [code, setCode] = useState('');
   const [name, setName] = useState('');
+  const [role, setRole] = useState<'family' | 'masjid'>('family');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,7 +44,7 @@ export function JoinByCodeForm({ fixedCode, onJoined }: JoinByCodeFormProps) {
       }
 
       const pid = getDevicePid();
-      await sessionStore.joinSession(targetCode, pid, trimmedName);
+      await sessionStore.joinSession(targetCode, pid, trimmedName, role);
       membership.save(targetCode, pid, trimmedName);
 
       if (fixedCode) {
@@ -81,6 +82,39 @@ export function JoinByCodeForm({ fixedCode, onJoined }: JoinByCodeFormProps) {
         placeholder="e.g. Omar"
         disabled={submitting}
       />
+      <label>I'm joining as</label>
+      <div className="role-choice">
+        <label className={`role-choice-option ${role === 'family' ? 'active' : ''}`}>
+          <input
+            type="radio"
+            name="join-role"
+            checked={role === 'family'}
+            disabled={submitting}
+            onChange={() => setRole('family')}
+          />
+          <span className="role-choice-text">
+            <span className="role-choice-label">Family / close friend</span>
+            <span className="role-choice-desc">
+              Coordinating tasks, costs, and documents for the family
+            </span>
+          </span>
+        </label>
+        <label className={`role-choice-option ${role === 'masjid' ? 'active' : ''}`}>
+          <input
+            type="radio"
+            name="join-role"
+            checked={role === 'masjid'}
+            disabled={submitting}
+            onChange={() => setRole('masjid')}
+          />
+          <span className="role-choice-text">
+            <span className="role-choice-label">Masjid board member</span>
+            <span className="role-choice-desc">
+              Coordinating the masjid/cemetery directory and volunteers
+            </span>
+          </span>
+        </label>
+      </div>
       {error && <p className="form-error">{error}</p>}
       <button type="submit" disabled={submitting || !name.trim()}>
         {submitting ? 'Joining…' : 'Join'}

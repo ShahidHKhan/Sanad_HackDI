@@ -11,11 +11,27 @@ interface CemeteryCardProps {
 }
 
 export function CemeteryCard({ code, cemetery, call, isUsed, by }: CemeteryCardProps) {
+  function handleRemove() {
+    if (window.confirm(`Remove "${cemetery.name}" from the directory? This can't be undone.`)) {
+      sessionStore.removeCemetery(cemetery.id);
+    }
+  }
+
   return (
     <div className="directory-card">
       <div className="directory-card-header">
         <span className="directory-card-name">{cemetery.name}</span>
-        {isUsed && <span className="directory-used-badge">In use</span>}
+        <div className="directory-card-header-actions">
+          {isUsed && <span className="directory-used-badge">In use</span>}
+          <button
+            type="button"
+            className="directory-remove-button"
+            aria-label={`Remove ${cemetery.name}`}
+            onClick={handleRemove}
+          >
+            ✕
+          </button>
+        </div>
       </div>
       {cemetery.town && <span className="directory-card-meta">{cemetery.town}</span>}
       {cemetery.phone && <span className="directory-card-meta">{cemetery.phone}</span>}

@@ -83,10 +83,55 @@ input {
   width: 100%;
 }
 
-input[type='checkbox'] {
+input[type='checkbox'],
+input[type='radio'] {
   width: auto;
   padding: 0;
   flex: none;
+}
+
+.role-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.3rem;
+}
+
+.role-choice-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--fg);
+  font-size: inherit;
+  cursor: pointer;
+  margin-top: 0;
+}
+
+.role-choice-option input[type='radio'] {
+  margin-top: 0.2rem;
+}
+
+.role-choice-option.active {
+  border-color: var(--confirmed);
+  background: var(--confirmed-bg);
+}
+
+.role-choice-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.role-choice-label {
+  font-weight: 600;
+}
+
+.role-choice-desc {
+  font-size: 0.78rem;
+  color: var(--muted);
 }
 
 label {
@@ -109,6 +154,7 @@ label {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  width: 100%;
   max-width: 360px;
 }
 
@@ -120,16 +166,19 @@ label {
 
 .landing h1 {
   font-family: var(--font-serif);
+  text-align: center;
 }
 
 .landing-subtitle {
   color: var(--muted);
+  text-align: center;
 }
 
 .landing-forms {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 1.5rem;
-  flex-wrap: wrap;
   margin-top: 1.5rem;
 }
 
@@ -239,6 +288,19 @@ label {
 
 .session-page > .segment-switcher {
   justify-content: center;
+}
+
+.coming-soon-placeholder {
+  color: var(--muted);
+  text-align: center;
+  margin-top: 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.coming-soon-placeholder-note {
+  font-style: italic;
 }
 
 .bottom-nav {
@@ -720,6 +782,26 @@ label {
 
 .directory-card-name {
   font-weight: 600;
+}
+
+.directory-card-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: none;
+}
+
+.directory-remove-button {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding: 0.1rem 0.3rem;
+  line-height: 1;
+}
+
+.directory-remove-button:hover {
+  color: var(--danger);
 }
 
 .directory-used-badge {

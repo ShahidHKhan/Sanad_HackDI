@@ -11,11 +11,27 @@ interface MasjidCardProps {
 }
 
 export function MasjidCard({ code, masjid, call, isUsed, by }: MasjidCardProps) {
+  function handleRemove() {
+    if (window.confirm(`Remove "${masjid.name}" from the directory? This can't be undone.`)) {
+      sessionStore.removeMasjid(masjid.id);
+    }
+  }
+
   return (
     <div className="directory-card">
       <div className="directory-card-header">
         <span className="directory-card-name">{masjid.name}</span>
-        {isUsed && <span className="directory-used-badge">In use</span>}
+        <div className="directory-card-header-actions">
+          {isUsed && <span className="directory-used-badge">In use</span>}
+          <button
+            type="button"
+            className="directory-remove-button"
+            aria-label={`Remove ${masjid.name}`}
+            onClick={handleRemove}
+          >
+            ✕
+          </button>
+        </div>
       </div>
       {masjid.town && <span className="directory-card-meta">{masjid.town}</span>}
       {masjid.phone && <span className="directory-card-meta">{masjid.phone}</span>}

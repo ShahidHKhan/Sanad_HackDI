@@ -1,9 +1,12 @@
 export type Pid = string;
 
+export type ParticipantRole = 'admin' | 'family' | 'masjid';
+
 export interface Participant {
   pid: Pid;
   name: string;
   joinedAt: string;
+  role: ParticipantRole;
 }
 
 export type TaskGroupName =
@@ -129,6 +132,16 @@ export interface DirectoryCall {
   loggedAt: string | null;
 }
 
+export interface Volunteer {
+  id: string;
+  name: string;
+  phone: string;
+  note: string;
+  addedByPid: Pid;
+  addedByName: string;
+  at: string;
+}
+
 export interface SessionState {
   session: SessionMeta;
   participants: Participant[];
@@ -137,4 +150,5 @@ export interface SessionState {
   documents: DocumentEntry[];
   chatMessages: ChatMessage[];
   directoryCalls: DirectoryCall[];
+  volunteers: Volunteer[];
 }

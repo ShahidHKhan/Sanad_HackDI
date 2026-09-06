@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AnnounceTab } from '../components/announce/AnnounceTab';
 import { ChatDrawer } from '../components/ChatDrawer';
@@ -43,6 +43,17 @@ export function SessionPage() {
   const [guidanceOpen, setGuidanceOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
 
+  const member = membership.get(normalizedCode);
+  const myRole = state?.participants.find((p) => p.pid === member?.pid)?.role;
+
+  // Masjid-role participants only get the Masjid half — Records/Chat/Tasks
+  // carry family-private info they have no reason to see.
+  useEffect(() => {
+    if (myRole === 'masjid') {
+      navigate(`/s/${normalizedCode}/masjid`, { replace: true });
+    }
+  }, [myRole, navigate, normalizedCode]);
+
   if (status === 'loading') {
     return <div className="loading-state">Loading…</div>;
   }
@@ -56,7 +67,6 @@ export function SessionPage() {
     );
   }
 
-  const member = membership.get(normalizedCode);
   if (!member) {
     return (
       <div className="landing">
@@ -73,7 +83,12 @@ export function SessionPage() {
     return <div className="loading-state">Loading…</div>;
   }
 
+  if (myRole === 'masjid') {
+    return <div className="loading-state">Redirecting…</div>;
+  }
+
   const by = { pid: member.pid, name: member.name };
+  const isAdmin = myRole === 'admin';
   const lastSeenChat = chatSeen.getLastSeen(normalizedCode);
   const hasUnreadChat = state.chatMessages.some(
     (m) => !lastSeenChat || new Date(m.at) > new Date(lastSeenChat),
@@ -125,7 +140,7 @@ export function SessionPage() {
       <main>
         {tab === 'overview' && <OverviewTab state={state} />}
         {tab === 'tasks' && (
-          <TasksTab code={normalizedCode} state={state} by={by} />
+          <TasksTab code={normalizedCode} state={state} by={by} isAdmin={isAdmin} />
         )}
         {tab === 'records' && (
           <RecordsTab code={normalizedCode} state={state} by={by} />

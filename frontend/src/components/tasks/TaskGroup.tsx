@@ -6,9 +6,10 @@ interface TaskGroupProps {
   group: TaskGroupName;
   tasks: Task[];
   by: { pid: string; name: string };
+  isAdmin: boolean;
 }
 
-export function TaskGroup({ code, group, tasks, by }: TaskGroupProps) {
+export function TaskGroup({ code, group, tasks, by, isAdmin }: TaskGroupProps) {
   if (tasks.length === 0) return null;
 
   return (
@@ -18,7 +19,7 @@ export function TaskGroup({ code, group, tasks, by }: TaskGroupProps) {
         .slice()
         .sort((a, b) => a.sortOrder - b.sortOrder)
         .map((task) => (
-          <TaskRow key={task.id} code={code} task={task} by={by} />
+          <TaskRow key={task.id} code={code} task={task} by={by} isAdmin={isAdmin} />
         ))}
     </section>
   );

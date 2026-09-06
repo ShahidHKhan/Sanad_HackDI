@@ -3,20 +3,23 @@ import { useNavigate } from 'react-router-dom';
 interface HalfToggleProps {
   code: string;
   active: 'family' | 'masjid';
+  hideFamily?: boolean;
 }
 
-export function HalfToggle({ code, active }: HalfToggleProps) {
+export function HalfToggle({ code, active, hideFamily }: HalfToggleProps) {
   const navigate = useNavigate();
 
   return (
     <nav className="segment-switcher">
-      <button
-        type="button"
-        className={active === 'family' ? 'active' : ''}
-        onClick={() => navigate(`/s/${code}`)}
-      >
-        Family
-      </button>
+      {!hideFamily && (
+        <button
+          type="button"
+          className={active === 'family' ? 'active' : ''}
+          onClick={() => navigate(`/s/${code}`)}
+        >
+          Family
+        </button>
+      )}
       <button
         type="button"
         className={active === 'masjid' ? 'active' : ''}

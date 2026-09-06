@@ -22,6 +22,7 @@ import type {
   SessionState,
   Task,
   TaskGroupName,
+  Volunteer,
 } from '../types/domain';
 
 export class SessionNotFoundError extends Error {
@@ -54,7 +55,7 @@ function rowToSessionMeta(row: any): SessionMeta {
 }
 
 function rowToParticipant(row: any): Participant {
-  return { pid: row.pid, name: row.name, joinedAt: row.joined_at };
+  return { pid: row.pid, name: row.name, joinedAt: row.joined_at, role: row.role };
 }
 
 function rowToCost(row: any): Cost {
@@ -124,6 +125,18 @@ function rowToDirectoryCall(row: any): DirectoryCall {
     loggedByPid: row.logged_by_pid,
     loggedByName: row.logged_by_name,
     loggedAt: row.logged_at,
+  };
+}
+
+function rowToVolunteer(row: any): Volunteer {
+  return {
+    id: row.id,
+    name: row.name,
+    phone: row.phone,
+    note: row.note,
+    addedByPid: row.added_by_pid,
+    addedByName: row.added_by_name,
+    at: row.at,
   };
 }
 
@@ -205,6 +218,7 @@ export async function createSession(
     pid: creatorPid,
     name: creatorName,
     joined_at: nowIso(),
+    role: 'admin',
   });
   if (participantError) throw participantError;
 
@@ -232,6 +246,7 @@ export async function getSession(code: string): Promise<SessionState | null> {
     { data: documentRows, error: documentsError },
     { data: chatRows, error: chatError },
     { data: directoryCallRows, error: directoryCallsError },
+    { data: volunteerRows, error: volunteersError },
   ] = await Promise.all([
     supabase.from('participants').select('*').eq('session_code', code).order('joined_at'),
     supabase.from('tasks').select('*').eq('session_code', code).order('sort_order'),
@@ -239,6 +254,7 @@ export async function getSession(code: string): Promise<SessionState | null> {
     supabase.from('documents').select('*').eq('session_code', code).order('at'),
     supabase.from('chat_messages').select('*').eq('session_code', code).order('at'),
     supabase.from('directory_calls').select('*').eq('session_code', code),
+    supabase.from('volunteers').select('*').eq('session_code', code).order('at'),
   ]);
   if (participantsError) throw participantsError;
   if (tasksError) throw tasksError;
@@ -246,6 +262,7 @@ export async function getSession(code: string): Promise<SessionState | null> {
   if (documentsError) throw documentsError;
   if (chatError) throw chatError;
   if (directoryCallsError) throw directoryCallsError;
+  if (volunteersError) throw volunteersError;
 
   return {
     session: rowToSessionMeta(sessionRow),
@@ -255,6 +272,7 @@ export async function getSession(code: string): Promise<SessionState | null> {
     documents: (documentRows ?? []).map(rowToDocument),
     chatMessages: (chatRows ?? []).map(rowToChatMessage),
     directoryCalls: (directoryCallRows ?? []).map(rowToDirectoryCall),
+    volunteers: (volunteerRows ?? []).map(rowToVolunteer),
   };
 }
 
@@ -262,6 +280,7 @@ export async function joinSession(
   code: string,
   pid: Pid,
   name: string,
+  role: 'family' | 'masjid' = 'family',
 ): Promise<SessionState> {
   const { data: existing, error: findError } = await supabase
     .from('participants')
@@ -272,6 +291,8 @@ export async function joinSession(
   if (findError) throw findError;
 
   if (existing) {
+    // Re-joining never changes an existing role — a returning admin/family/
+    // masjid participant keeps whatever role they already had.
     const { error } = await supabase
       .from('participants')
       .update({ name })
@@ -281,7 +302,7 @@ export async function joinSession(
   } else {
     const { error } = await supabase
       .from('participants')
-      .insert({ session_code: code, pid, name, joined_at: nowIso() });
+      .insert({ session_code: code, pid, name, joined_at: nowIso(), role });
     if (error) throw error;
   }
 
@@ -343,6 +364,11 @@ export function subscribeToSession(
     .on(
       'postgres_changes',
       { event: '*', schema: 'public', table: 'directory_calls', filter: `session_code=eq.${code}` },
+      refetch,
+    )
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'volunteers', filter: `session_code=eq.${code}` },
       refetch,
     )
     .subscribe();
@@ -722,6 +748,32 @@ export async function addCemetery(
   if (error) throw error;
 }
 
+// Removes a directory entry and any per-session call-tracking rows pointing
+// at it — entry_id isn't a real foreign key (it can reference either
+// masjids or cemeteries depending on entry_type), so nothing cascades this
+// automatically.
+export async function removeMasjid(id: string): Promise<void> {
+  const { error: callsError } = await supabase
+    .from('directory_calls')
+    .delete()
+    .eq('entry_type', 'masjid')
+    .eq('entry_id', id);
+  if (callsError) throw callsError;
+  const { error } = await supabase.from('masjids').delete().eq('id', id);
+  if (error) throw error;
+}
+
+export async function removeCemetery(id: string): Promise<void> {
+  const { error: callsError } = await supabase
+    .from('directory_calls')
+    .delete()
+    .eq('entry_type', 'cemetery')
+    .eq('entry_id', id);
+  if (callsError) throw callsError;
+  const { error } = await supabase.from('cemeteries').delete().eq('id', id);
+  if (error) throw error;
+}
+
 export async function claimDirectoryEntry(
   code: string,
   entryType: DirectoryEntryType,
@@ -840,4 +892,23 @@ export async function logDirectoryOutcome(
       by,
     );
   }
+}
+
+// --- volunteers (Masjid half, per-session roster) -----------------------
+
+export async function addVolunteer(
+  code: string,
+  fields: { name: string; phone: string; note: string },
+  by: { pid: Pid; name: string },
+): Promise<void> {
+  const { error } = await supabase.from('volunteers').insert({
+    session_code: code,
+    name: fields.name,
+    phone: fields.phone,
+    note: fields.note,
+    added_by_pid: by.pid,
+    added_by_name: by.name,
+    at: nowIso(),
+  });
+  if (error) throw error;
 }

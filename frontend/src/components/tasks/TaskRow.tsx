@@ -7,9 +7,10 @@ interface TaskRowProps {
   code: string;
   task: Task;
   by: { pid: string; name: string };
+  isAdmin: boolean;
 }
 
-export function TaskRow({ code, task, by }: TaskRowProps) {
+export function TaskRow({ code, task, by, isAdmin }: TaskRowProps) {
   const [noteDraft, setNoteDraft] = useState(task.delegateNote);
   const [locationDraft, setLocationDraft] = useState(task.location ?? '');
   const [error, setError] = useState<string | null>(null);
@@ -107,12 +108,16 @@ export function TaskRow({ code, task, by }: TaskRowProps) {
             Claim
           </button>
         )}
-        <button type="button" onClick={startEditing}>
-          Edit
-        </button>
-        <button type="button" className="btn-danger" onClick={handleRemove}>
-          Remove
-        </button>
+        {isAdmin && (
+          <>
+            <button type="button" onClick={startEditing}>
+              Edit
+            </button>
+            <button type="button" className="btn-danger" onClick={handleRemove}>
+              Remove
+            </button>
+          </>
+        )}
         <button
           type="button"
           className={`pin-button ${task.pinned ? 'active' : ''}`}
