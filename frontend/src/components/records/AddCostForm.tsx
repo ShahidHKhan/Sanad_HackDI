@@ -58,10 +58,10 @@ export function AddCostForm({ code, participants, by, onDone }: AddCostFormProps
         ))}
       </select>
       <div className="modal-actions">
-        <button type="button" onClick={onDone}>
+        <button type="button" className="btn-quiet" onClick={onDone}>
           Cancel
         </button>
-        <button type="submit">Save</button>
+        <button type="submit" className="btn-primary">Save</button>
       </div>
     </form>
   );

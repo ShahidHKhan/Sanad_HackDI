@@ -16,8 +16,8 @@ export function LogisticsContextCard({ task, onSave }: LogisticsContextCardProps
   }, [task?.delegateNote]);
 
   return (
-    <div className="panel logistics-slot">
-      <h3>Extra context</h3>
+    <section className="section">
+      <h3 className="display-3">Extra context</h3>
       <p className="logistics-context-hint">
         Anything else worth sharing — parking, entrances, livestream link, reception details,
         whatever doesn't fit in the slots above. Visible to the family too.
@@ -33,6 +33,6 @@ export function LogisticsContextCard({ task, onSave }: LogisticsContextCardProps
         }}
         placeholder="e.g. Use the side entrance on Elm St. Overflow parking behind the community center."
       />
-    </div>
+    </section>
   );
 }

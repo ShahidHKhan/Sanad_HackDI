@@ -59,10 +59,10 @@ export function AddMasjidForm({ by, onDone, initial }: AddMasjidFormProps) {
       <label htmlFor="masjid-notes">Notes</label>
       <input id="masjid-notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional" />
       <div className="modal-actions">
-        <button type="button" onClick={onDone}>
+        <button type="button" className="btn-quiet" onClick={onDone}>
           Cancel
         </button>
-        <button type="submit">Save</button>
+        <button type="submit" className="btn-primary">Save</button>
       </div>
     </form>
   );

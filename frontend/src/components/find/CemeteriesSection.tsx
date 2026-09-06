@@ -57,64 +57,69 @@ export function CemeteriesSection({ code, cemeteries, calls, session, by }: Ceme
         onAdd={handleAddFromLookup}
       />
 
-      <h3 className="directory-section-heading">Community directory</h3>
-
-      <input
-        className="directory-search"
-        placeholder="Search cemeteries by name or town…"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
-      <div className="directory-filters">
-        <label className="filter-chip">
-          <input
-            type="checkbox"
-            checked={islamicSectionOnly}
-            onChange={(e) => setIslamicSectionOnly(e.target.checked)}
-          />
-          Islamic section
-        </label>
-        <label className="filter-chip">
-          <input
-            type="checkbox"
-            checked={noCasketOnly}
-            onChange={(e) => setNoCasketOnly(e.target.checked)}
-          />
-          No casket required
-        </label>
-      </div>
-
-      {addPrefill ? (
-        <AddCemeteryForm
-          code={code}
-          by={by}
-          initial={addPrefill}
-          onDone={() => setAddPrefill(null)}
-        />
-      ) : (
-        <button type="button" className="records-log-button" onClick={() => setAddPrefill({})}>
-          Add a cemetery
-        </button>
-      )}
-
-      {filtered.length === 0 ? (
-        <p className="records-empty">
-          {cemeteries.length === 0 ? 'No cemeteries added yet.' : 'No cemeteries match your filters.'}
-        </p>
-      ) : (
-        <div className="records-list">
-          {filtered.map((c) => (
-            <CemeteryCard
-              key={c.id}
-              code={code}
-              cemetery={c}
-              call={calls.find((call) => call.entryType === 'cemetery' && call.entryId === c.id) ?? null}
-              isUsed={!!session.cemeteryName && session.cemeteryName === c.name}
-              by={by}
-            />
-          ))}
+      <section className="section">
+        <div className="section-head">
+          <h3 className="display-3">Community directory</h3>
+          {!addPrefill && (
+            <button type="button" className="btn-quiet" onClick={() => setAddPrefill({})}>
+              + Add a cemetery
+            </button>
+          )}
         </div>
-      )}
+
+        <input
+          className="directory-search"
+          placeholder="Search cemeteries by name or town…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <div className="directory-filters">
+          <label className={`toggle-chip ${islamicSectionOnly ? 'active' : ''}`}>
+            <input
+              type="checkbox"
+              checked={islamicSectionOnly}
+              onChange={(e) => setIslamicSectionOnly(e.target.checked)}
+            />
+            Islamic section
+          </label>
+          <label className={`toggle-chip ${noCasketOnly ? 'active' : ''}`}>
+            <input
+              type="checkbox"
+              checked={noCasketOnly}
+              onChange={(e) => setNoCasketOnly(e.target.checked)}
+            />
+            No casket required
+          </label>
+        </div>
+
+        {addPrefill && (
+          <AddCemeteryForm
+            code={code}
+            by={by}
+            initial={addPrefill}
+            onDone={() => setAddPrefill(null)}
+          />
+        )}
+
+        {filtered.length === 0 ? (
+          <p className="records-empty">
+            {cemeteries.length === 0 ? 'No cemeteries added yet.' : 'No cemeteries match your filters.'}
+          </p>
+        ) : (
+          <div className="records-list">
+            {filtered.map((c) => (
+              <CemeteryCard
+                key={c.id}
+                code={code}
+                cemetery={c}
+                call={calls.find((call) => call.entryType === 'cemetery' && call.entryId === c.id) ?? null}
+                isUsed={!!session.cemeteryName && session.cemeteryName === c.name}
+                by={by}
+              />
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

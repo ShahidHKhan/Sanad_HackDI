@@ -44,18 +44,21 @@ export function LookupPlacesPanel({ title, placeholder, emptyMessage, search, on
   const hasContent = query || results || notice || error;
 
   return (
-    <div className="panel lookup-panel">
-      <h3>{title}</h3>
-      <form className="lookup-form" onSubmit={handleSearch}>
-        <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={placeholder} />
-        <button type="submit" disabled={loading || !query.trim()}>
-          {loading ? 'Searching…' : 'Search'}
-        </button>
+    <section className="section lookup-section">
+      <div className="section-head">
+        <h3 className="display-3">{title}</h3>
         {hasContent && (
-          <button type="button" onClick={handleClear} disabled={loading}>
+          <button type="button" className="btn-quiet" onClick={handleClear} disabled={loading}>
             Clear
           </button>
         )}
+      </div>
+
+      <form className="lookup-form" onSubmit={handleSearch}>
+        <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={placeholder} />
+        <button type="submit" className="btn-secondary" disabled={loading || !query.trim()}>
+          {loading ? 'Searching…' : 'Search'}
+        </button>
       </form>
 
       {error && <p className="form-error">{error}</p>}
@@ -65,41 +68,55 @@ export function LookupPlacesPanel({ title, placeholder, emptyMessage, search, on
       {results && results.length > 0 && (
         <div className="records-list">
           {results.map((r) => (
-            <div key={r.osmId} className="directory-card lookup-result-card">
-              <span className="directory-card-name">{r.name}</span>
-              {r.isUnnamed && (
-                <span className="directory-card-meta lookup-unnamed-note">
-                  Identified only as cemetery land in OpenStreetMap — no name on file. Confirm by
-                  location before calling.
-                </span>
+            <div key={r.osmId} className="row">
+              <div className="row-main">
+                <span className="row-title">{r.name}</span>
+                {r.isUnnamed && (
+                  <span className="row-meta aside-note">
+                    Identified only as cemetery land in OpenStreetMap — no name on file. Confirm by
+                    location before calling.
+                  </span>
+                )}
+                {(r.address || r.town) && (
+                  <span className="row-meta">
+                    {[r.address, r.town].filter(Boolean).join(', ')}
+                  </span>
+                )}
+                {r.phone ? (
+                  <span className="row-meta">{r.phone}</span>
+                ) : (
+                  <span className="row-meta aside-note">
+                    No phone number on file — add one after you call
+                  </span>
+                )}
+              </div>
+
+              <div className="row-actions">
+                <button type="button" className="btn-quiet" onClick={() => onAdd(r)}>
+                  Add to directory
+                </button>
+              </div>
+
+              {(r.islamicSectionHint || r.mapUrl) && (
+                <div className="row-detail">
+                  {r.islamicSectionHint && (
+                    <div className="chip-row">
+                      <span className="chip">Tagged as Islamic section</span>
+                    </div>
+                  )}
+                  {r.mapUrl && (
+                    <a className="lookup-map-link" href={r.mapUrl} target="_blank" rel="noreferrer">
+                      View on map ↗
+                    </a>
+                  )}
+                </div>
               )}
-              {(r.address || r.town) && (
-                <span className="directory-card-meta">
-                  {[r.address, r.town].filter(Boolean).join(', ')}
-                </span>
-              )}
-              {r.phone ? (
-                <span className="directory-card-meta">{r.phone}</span>
-              ) : (
-                <span className="directory-card-meta lookup-no-phone">
-                  No phone number on file — add one after you call
-                </span>
-              )}
-              {r.islamicSectionHint && <span className="tag-chip">Tagged as Islamic section</span>}
-              {r.mapUrl && (
-                <a className="lookup-map-link" href={r.mapUrl} target="_blank" rel="noreferrer">
-                  View on map ↗
-                </a>
-              )}
-              <button type="button" onClick={() => onAdd(r)}>
-                Add to directory
-              </button>
             </div>
           ))}
         </div>
       )}
 
       <p className="lookup-attribution">Location data © OpenStreetMap contributors</p>
-    </div>
+    </section>
   );
 }

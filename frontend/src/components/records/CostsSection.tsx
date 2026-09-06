@@ -21,56 +21,72 @@ export function CostsSection({ code, costs, participants, by }: CostsSectionProp
 
   return (
     <div className="records-section">
-      <div className="records-summary panel">
-        <div className="records-summary-total">
-          <span>Total spent</span>
-          <span>{formatMoney(totalSpent)}</span>
-        </div>
-        {participants.map((p) => {
-          const paid = costs.filter((c) => c.paidByPid === p.pid).reduce((sum, c) => sum + c.amount, 0);
-          const net = paid - fairShare;
-          return (
-            <div key={p.pid} className="records-summary-row">
-              <span>
-                {p.name} · paid {formatMoney(paid)}
-              </span>
-              <span>{net >= 0 ? `is owed ${formatMoney(net)}` : `owes ${formatMoney(-net)}`}</span>
-            </div>
-          );
-        })}
-      </div>
+      <section className="section">
+        <span className="eyebrow">Total spent</span>
+        <span className="summary-value">{formatMoney(totalSpent)}</span>
 
-      {addingCost ? (
-        <AddCostForm
-          code={code}
-          participants={participants}
-          by={by}
-          onDone={() => setAddingCost(false)}
-        />
-      ) : (
-        <button type="button" className="records-log-button" onClick={() => setAddingCost(true)}>
-          Log a cost
-        </button>
-      )}
-
-      {costs.length === 0 ? (
-        <p className="records-empty">No costs logged yet.</p>
-      ) : (
-        <div className="records-list">
-          {costs
-            .slice()
-            .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
-            .map((c) => (
-              <div key={c.id} className="cost-row">
-                <span className="cost-row-label">{c.label}</span>
-                <span className="cost-row-amount">{formatMoney(c.amount)}</span>
-                <span className="cost-row-meta">
-                  Paid by {c.paidByName} · {new Date(c.at).toLocaleDateString()}
+        <div className="summary-splits">
+          {participants.map((p) => {
+            const paid = costs
+              .filter((c) => c.paidByPid === p.pid)
+              .reduce((sum, c) => sum + c.amount, 0);
+            const net = paid - fairShare;
+            return (
+              <div key={p.pid} className="summary-split">
+                <span>
+                  {p.name} · paid {formatMoney(paid)}
+                </span>
+                <span className="summary-split-net">
+                  {net >= 0 ? `is owed ${formatMoney(net)}` : `owes ${formatMoney(-net)}`}
                 </span>
               </div>
-            ))}
+            );
+          })}
         </div>
-      )}
+      </section>
+
+      <section className="section">
+        <div className="section-head">
+          <h3 className="display-3">Costs</h3>
+          {!addingCost && (
+            <button type="button" className="btn-quiet" onClick={() => setAddingCost(true)}>
+              + Log a cost
+            </button>
+          )}
+        </div>
+
+        {addingCost && (
+          <AddCostForm
+            code={code}
+            participants={participants}
+            by={by}
+            onDone={() => setAddingCost(false)}
+          />
+        )}
+
+        {costs.length === 0 ? (
+          <p className="records-empty">No costs logged yet.</p>
+        ) : (
+          <div className="records-list">
+            {costs
+              .slice()
+              .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
+              .map((c) => (
+                <div key={c.id} className="row">
+                  <div className="row-main">
+                    <span className="row-title">{c.label}</span>
+                    <span className="row-meta">
+                      Paid by {c.paidByName} · {new Date(c.at).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <div className="row-actions">
+                    <span className="row-amount">{formatMoney(c.amount)}</span>
+                  </div>
+                </div>
+              ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

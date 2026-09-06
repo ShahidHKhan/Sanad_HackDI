@@ -70,7 +70,7 @@ export function DirectoryCallControls({
         {call.outcomeNote && <span className="directory-outcome-note">{call.outcomeNote}</span>}
         <span className="directory-card-meta">Logged by {call.loggedByName}</span>
         {call.outcome === 'confirmed' && !isUsed && (
-          <button type="button" onClick={onUse}>
+          <button type="button" className="btn-secondary" onClick={onUse}>
             {useLabel}
           </button>
         )}
@@ -111,10 +111,10 @@ export function DirectoryCallControls({
           placeholder="Optional"
         />
         <div className="modal-actions">
-          <button type="button" onClick={() => setLoggingOutcome(false)}>
+          <button type="button" className="btn-quiet" onClick={() => setLoggingOutcome(false)}>
             Cancel
           </button>
-          <button type="button" onClick={handleLogOutcome}>
+          <button type="button" className="btn-primary" onClick={handleLogOutcome}>
             Save
           </button>
         </div>
@@ -125,16 +125,21 @@ export function DirectoryCallControls({
   if (call?.claimedByPid) {
     return (
       <div className="directory-call-status">
-        <span className="task-claimed-by">Calling: {claimedByMe ? 'you' : call.claimedByName}</span>
+        <span className="row-meta">Calling: {claimedByMe ? 'you' : call.claimedByName}</span>
         {claimedByMe && (
           <>
             <button
               type="button"
+              className="btn-quiet"
               onClick={() => sessionStore.releaseDirectoryEntry(code, entryType, entryId)}
             >
               Release
             </button>
-            <button type="button" onClick={() => setLoggingOutcome(true)}>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={() => setLoggingOutcome(true)}
+            >
               Log outcome
             </button>
           </>
@@ -143,12 +148,19 @@ export function DirectoryCallControls({
     );
   }
 
+  // The button stays put alongside any error, so a failed claim can be
+  // retried rather than leaving the row with no action at all.
   return (
-    <>
-      <button type="button" onClick={handleClaim} disabled={claimedBySomeoneElse}>
-        I'll call this one
+    <div className="directory-call-idle">
+      <button
+        type="button"
+        className="btn-quiet"
+        onClick={handleClaim}
+        disabled={claimedBySomeoneElse}
+      >
+        I'll call this one →
       </button>
       {error && <p className="form-error">{error}</p>}
-    </>
+    </div>
   );
 }

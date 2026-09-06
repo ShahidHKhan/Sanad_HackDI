@@ -1,3 +1,4 @@
+import { X } from 'lucide-react';
 import { useState } from 'react';
 import { GUIDANCE_GUIDES } from '../data/guidance';
 
@@ -22,8 +23,14 @@ export function GuidanceDrawer({ onClose }: GuidanceDrawerProps) {
       <aside className="guidance-drawer" onClick={(e) => e.stopPropagation()}>
         <div className="guidance-header">
           <h2>Guidance</h2>
-          <button type="button" className="icon-button" aria-label="Close guidance" onClick={onClose}>
-            ✕
+          <button
+            type="button"
+            className="icon-button"
+            aria-label="Close guidance"
+            title="Close"
+            onClick={onClose}
+          >
+            <X size={18} aria-hidden="true" />
           </button>
         </div>
         <p className="guidance-description">

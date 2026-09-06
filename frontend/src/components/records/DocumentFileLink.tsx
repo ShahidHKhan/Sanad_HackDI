@@ -1,3 +1,4 @@
+import { Paperclip } from 'lucide-react';
 import { useState } from 'react';
 import * as sessionStore from '../../lib/sessionStore';
 
@@ -33,7 +34,7 @@ export function DocumentFileLink({ path, name, size }: DocumentFileLinkProps) {
   return (
     <div className="document-file-link">
       <button type="button" onClick={handleView} disabled={loading}>
-        📎 {loading ? 'Opening…' : name}
+        <Paperclip size={14} aria-hidden="true" /> {loading ? 'Opening…' : name}
       </button>
       {size != null && <span className="document-row-meta">{formatSize(size)}</span>}
       {error && <span className="form-error">Couldn't open the file.</span>}

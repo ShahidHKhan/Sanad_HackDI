@@ -1,3 +1,4 @@
+import { Check } from 'lucide-react';
 import type { Task } from '../../types/domain';
 
 interface TimelineRowProps {
@@ -14,7 +15,7 @@ export function TimelineRow({ task, isBlocker, isLast }: TimelineRowProps) {
           task.done ? 'timeline-marker-done' : isBlocker ? 'timeline-marker-blocker' : 'timeline-marker-pending'
         }`}
       >
-        {task.done && '✓'}
+        {task.done && <Check size={11} strokeWidth={3.5} aria-hidden="true" />}
       </div>
       <div className="timeline-row-content">
         <span className="timeline-title">{task.title}</span>
@@ -26,7 +27,7 @@ export function TimelineRow({ task, isBlocker, isLast }: TimelineRowProps) {
           </span>
         ) : (
           <span className="timeline-status">
-            TBD
+            <span className="timeline-tbd">Not scheduled</span>
             {isBlocker && <span className="blocker-badge">BLOCKER</span>}
           </span>
         )}

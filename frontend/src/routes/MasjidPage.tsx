@@ -1,3 +1,4 @@
+import { ArrowLeft, Clock, HandHeart, ListChecks, type LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CodeBadge } from '../components/CodeBadge';
@@ -13,10 +14,10 @@ import * as membership from '../lib/membership';
 
 type TabId = 'overview' | 'logistics' | 'volunteers';
 
-const NAV_ITEMS: { id: TabId; label: string; icon: string }[] = [
-  { id: 'overview', label: 'Overview', icon: '🕐' },
-  { id: 'logistics', label: 'Logistics', icon: '🗒️' },
-  { id: 'volunteers', label: 'Volunteers', icon: '🤝' },
+const NAV_ITEMS: { id: TabId; label: string; icon: LucideIcon }[] = [
+  { id: 'overview', label: 'Overview', icon: Clock },
+  { id: 'logistics', label: 'Logistics', icon: ListChecks },
+  { id: 'volunteers', label: 'Volunteers', icon: HandHeart },
 ];
 
 export function MasjidPage() {
@@ -70,7 +71,9 @@ export function MasjidPage() {
             className={`bottom-nav-item ${tab === item.id ? 'active' : ''}`}
             onClick={() => setTab(item.id)}
           >
-            <span className="bottom-nav-icon">{item.icon}</span>
+            <span className="bottom-nav-icon">
+              <item.icon size={20} strokeWidth={2} aria-hidden="true" />
+            </span>
             <span className="bottom-nav-label">{item.label}</span>
           </button>
         ))}
@@ -82,9 +85,10 @@ export function MasjidPage() {
             type="button"
             className="icon-button"
             aria-label="Back"
+            title="Back"
             onClick={() => navigate('/')}
           >
-            ←
+            <ArrowLeft size={18} aria-hidden="true" />
           </button>
 
           <div className="session-title-block">

@@ -1,3 +1,4 @@
+import { Pin } from 'lucide-react';
 import { useState } from 'react';
 import { GROUP_ORDER } from '../../data/defaultTasks';
 import * as sessionStore from '../../lib/sessionStore';
@@ -12,6 +13,7 @@ interface TaskRowProps {
 
 export function TaskRow({ code, task, by, isAdmin }: TaskRowProps) {
   const [noteDraft, setNoteDraft] = useState(task.delegateNote);
+  const [noteVisible, setNoteVisible] = useState(!!task.delegateNote);
   const [locationDraft, setLocationDraft] = useState(task.location ?? '');
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
@@ -67,10 +69,10 @@ export function TaskRow({ code, task, by, isAdmin }: TaskRowProps) {
           ))}
         </select>
         <div className="modal-actions">
-          <button type="button" onClick={() => setEditing(false)}>
+          <button type="button" className="btn-quiet" onClick={() => setEditing(false)}>
             Cancel
           </button>
-          <button type="button" onClick={saveEdit}>
+          <button type="button" className="btn-primary" onClick={saveEdit}>
             Save
           </button>
         </div>
@@ -123,23 +125,31 @@ export function TaskRow({ code, task, by, isAdmin }: TaskRowProps) {
           className={`pin-button ${task.pinned ? 'active' : ''}`}
           onClick={() => sessionStore.setTaskPinned(code, task.id, !task.pinned)}
         >
-          {task.pinned ? '📌 Pinned' : '📌 Pin'}
+          <Pin size={14} aria-hidden="true" />
+          {task.pinned ? 'Pinned' : 'Pin'}
         </button>
       </div>
 
       {error && <p className="form-error">{error}</p>}
 
-      <input
-        className="task-delegate-note"
-        placeholder="Delegated outside the family? Add a note…"
-        value={noteDraft}
-        onChange={(e) => setNoteDraft(e.target.value)}
-        onBlur={() => {
-          if (noteDraft !== task.delegateNote) {
-            sessionStore.setTaskDelegateNote(code, task.id, noteDraft);
-          }
-        }}
-      />
+      {noteVisible ? (
+        <input
+          className="task-delegate-note"
+          placeholder="Delegated outside the family? Add a note…"
+          autoFocus={!task.delegateNote}
+          value={noteDraft}
+          onChange={(e) => setNoteDraft(e.target.value)}
+          onBlur={() => {
+            if (noteDraft !== task.delegateNote) {
+              sessionStore.setTaskDelegateNote(code, task.id, noteDraft);
+            }
+          }}
+        />
+      ) : (
+        <button type="button" className="link-button" onClick={() => setNoteVisible(true)}>
+          + Add note
+        </button>
+      )}
 
       {task.pinned && (
         <input

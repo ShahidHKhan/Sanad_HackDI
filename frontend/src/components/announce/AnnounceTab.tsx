@@ -1,3 +1,4 @@
+import { Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { copyText } from '../../lib/clipboard';
 import { OPENING_LINE, buildAnnouncementText, getAnnouncementFacts } from '../../lib/announceTemplate';
@@ -54,35 +55,51 @@ export function AnnounceTab({ state }: AnnounceTabProps) {
 
   return (
     <div className="announce-tab">
-      <h3 className="announce-heading">Community announcement</h3>
+      <span className="eyebrow">Community announcement</span>
       <pre className="announce-text">{text}</pre>
 
       {error && <p className="form-error">{error}</p>}
 
-      <div className="announce-ai-actions">
-        {aiBody ? (
-          <>
-            <button type="button" onClick={handleGenerate} disabled={generating}>
-              {generating ? 'Regenerating…' : 'Regenerate'}
-            </button>
-            <button type="button" onClick={() => setAiBody(null)}>
-              Use template instead
-            </button>
-          </>
-        ) : (
-          <button type="button" onClick={handleGenerate} disabled={generating}>
-            {generating ? 'Writing…' : '✨ Write with AI'}
-          </button>
-        )}
-      </div>
-
       <div className="announce-actions">
-        <button type="button" className="announce-share-button" onClick={handleShare}>
+        <button type="button" className="btn-primary" onClick={handleShare}>
           Share
         </button>
-        <button type="button" onClick={copyToClipboard}>
+        <button type="button" className="btn-secondary" onClick={copyToClipboard}>
           Copy
         </button>
+
+        <div className="announce-ai-action">
+          {aiBody ? (
+            <>
+              <button
+                type="button"
+                className="btn-quiet"
+                onClick={handleGenerate}
+                disabled={generating}
+              >
+                {generating ? 'Regenerating…' : 'Regenerate'}
+              </button>
+              <button type="button" className="btn-quiet" onClick={() => setAiBody(null)}>
+                Use template instead
+              </button>
+            </>
+          ) : (
+            <button
+              type="button"
+              className="btn-quiet"
+              onClick={handleGenerate}
+              disabled={generating}
+            >
+              {generating ? (
+                'Writing…'
+              ) : (
+                <>
+                  <Sparkles size={14} aria-hidden="true" /> Write with AI
+                </>
+              )}
+            </button>
+          )}
+        </div>
       </div>
 
       {copyStatus === 'copied' && (

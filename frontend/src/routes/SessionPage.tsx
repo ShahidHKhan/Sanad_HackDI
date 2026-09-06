@@ -1,3 +1,15 @@
+import {
+  ArrowLeft,
+  BookOpen,
+  CheckSquare,
+  Clock,
+  MapPinned,
+  Megaphone,
+  MessageCircle,
+  Pencil,
+  ScrollText,
+  type LucideIcon,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AnnounceTab } from '../components/announce/AnnounceTab';
@@ -19,12 +31,12 @@ import * as membership from '../lib/membership';
 
 type TabId = 'overview' | 'tasks' | 'find' | 'records' | 'announce';
 
-const NAV_ITEMS: { id: TabId; label: string; icon: string }[] = [
-  { id: 'overview', label: 'Overview', icon: '🕐' },
-  { id: 'tasks', label: 'Tasks', icon: '✅' },
-  { id: 'find', label: 'Find', icon: '🕌' },
-  { id: 'records', label: 'Records', icon: '📄' },
-  { id: 'announce', label: 'Announce', icon: '📢' },
+const NAV_ITEMS: { id: TabId; label: string; icon: LucideIcon }[] = [
+  { id: 'overview', label: 'Overview', icon: Clock },
+  { id: 'tasks', label: 'Tasks', icon: CheckSquare },
+  { id: 'find', label: 'Find', icon: MapPinned },
+  { id: 'records', label: 'Records', icon: ScrollText },
+  { id: 'announce', label: 'Announce', icon: Megaphone },
 ];
 
 function getInitials(name: string): string {
@@ -107,7 +119,9 @@ export function SessionPage() {
             className={`bottom-nav-item ${tab === item.id ? 'active' : ''}`}
             onClick={() => setTab(item.id)}
           >
-            <span className="bottom-nav-icon">{item.icon}</span>
+            <span className="bottom-nav-icon">
+              <item.icon size={20} strokeWidth={2} aria-hidden="true" />
+            </span>
             <span className="bottom-nav-label">{item.label}</span>
           </button>
         ))}
@@ -119,9 +133,10 @@ export function SessionPage() {
             type="button"
             className="icon-button"
             aria-label="Back"
+            title="Back"
             onClick={() => navigate('/')}
           >
-            ←
+            <ArrowLeft size={18} aria-hidden="true" />
           </button>
 
           <div className="session-title-block">
@@ -138,29 +153,32 @@ export function SessionPage() {
               type="button"
               className="icon-button"
               aria-label="Open guidance"
+              title="Guidance"
               onClick={() => setGuidanceOpen(true)}
             >
-              📖
+              <BookOpen size={18} aria-hidden="true" />
             </button>
             <button
               type="button"
               className="icon-button"
               aria-label="Open chat"
+              title="Chat"
               onClick={() => {
                 chatSeen.markSeen(normalizedCode);
                 setChatOpen(true);
               }}
             >
-              💬
+              <MessageCircle size={18} aria-hidden="true" />
               {hasUnreadChat && <span className="unread-dot" />}
             </button>
             <button
               type="button"
               className="icon-button"
               aria-label="Edit session details"
+              title="Edit session details"
               onClick={() => setDetailsOpen(true)}
             >
-              ✏️
+              <Pencil size={18} aria-hidden="true" />
             </button>
           </div>
         </header>

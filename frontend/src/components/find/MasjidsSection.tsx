@@ -47,72 +47,77 @@ export function MasjidsSection({ code, masjids, calls, session, by }: MasjidsSec
         onAdd={handleAddFromLookup}
       />
 
-      <h3 className="directory-section-heading">Community directory</h3>
-
-      <input
-        className="directory-search"
-        placeholder="Search masjids by name or town…"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-      />
-      <div className="directory-filters">
-        <label className="filter-chip">
-          <input
-            type="checkbox"
-            checked={ghuslMenOnly}
-            onChange={(e) => setGhuslMenOnly(e.target.checked)}
-          />
-          Ghusl (men)
-        </label>
-        <label className="filter-chip">
-          <input
-            type="checkbox"
-            checked={ghuslWomenOnly}
-            onChange={(e) => setGhuslWomenOnly(e.target.checked)}
-          />
-          Ghusl (women)
-        </label>
-        <label className="filter-chip">
-          <input
-            type="checkbox"
-            checked={shortNoticeOnly}
-            onChange={(e) => setShortNoticeOnly(e.target.checked)}
-          />
-          Short notice
-        </label>
-      </div>
-
-      {addPrefill ? (
-        <AddMasjidForm
-          code={code}
-          by={by}
-          initial={addPrefill}
-          onDone={() => setAddPrefill(null)}
-        />
-      ) : (
-        <button type="button" className="records-log-button" onClick={() => setAddPrefill({})}>
-          Add a masjid
-        </button>
-      )}
-
-      {filtered.length === 0 ? (
-        <p className="records-empty">
-          {masjids.length === 0 ? 'No masjids added yet.' : 'No masjids match your filters.'}
-        </p>
-      ) : (
-        <div className="records-list">
-          {filtered.map((m) => (
-            <MasjidCard
-              key={m.id}
-              code={code}
-              masjid={m}
-              call={calls.find((c) => c.entryType === 'masjid' && c.entryId === m.id) ?? null}
-              isUsed={!!session.masjidName && session.masjidName === m.name}
-              by={by}
-            />
-          ))}
+      <section className="section">
+        <div className="section-head">
+          <h3 className="display-3">Community directory</h3>
+          {!addPrefill && (
+            <button type="button" className="btn-quiet" onClick={() => setAddPrefill({})}>
+              + Add a masjid
+            </button>
+          )}
         </div>
-      )}
+
+        <input
+          className="directory-search"
+          placeholder="Search masjids by name or town…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <div className="directory-filters">
+          <label className={`toggle-chip ${ghuslMenOnly ? 'active' : ''}`}>
+            <input
+              type="checkbox"
+              checked={ghuslMenOnly}
+              onChange={(e) => setGhuslMenOnly(e.target.checked)}
+            />
+            Ghusl (men)
+          </label>
+          <label className={`toggle-chip ${ghuslWomenOnly ? 'active' : ''}`}>
+            <input
+              type="checkbox"
+              checked={ghuslWomenOnly}
+              onChange={(e) => setGhuslWomenOnly(e.target.checked)}
+            />
+            Ghusl (women)
+          </label>
+          <label className={`toggle-chip ${shortNoticeOnly ? 'active' : ''}`}>
+            <input
+              type="checkbox"
+              checked={shortNoticeOnly}
+              onChange={(e) => setShortNoticeOnly(e.target.checked)}
+            />
+            Short notice
+          </label>
+        </div>
+
+        {addPrefill && (
+          <AddMasjidForm
+            code={code}
+            by={by}
+            initial={addPrefill}
+            onDone={() => setAddPrefill(null)}
+          />
+        )}
+
+        {filtered.length === 0 ? (
+          <p className="records-empty">
+            {masjids.length === 0 ? 'No masjids added yet.' : 'No masjids match your filters.'}
+          </p>
+        ) : (
+          <div className="records-list">
+            {filtered.map((m) => (
+              <MasjidCard
+                key={m.id}
+                code={code}
+                masjid={m}
+                call={calls.find((c) => c.entryType === 'masjid' && c.entryId === m.id) ?? null}
+                isUsed={!!session.masjidName && session.masjidName === m.name}
+                by={by}
+              />
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 }

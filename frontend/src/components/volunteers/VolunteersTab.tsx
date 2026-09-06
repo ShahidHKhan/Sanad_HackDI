@@ -33,64 +33,77 @@ export function VolunteersTab({ code, volunteers, by }: VolunteersTabProps) {
 
   return (
     <div className="records-section">
-      {formSeed ? (
-        <AddVolunteerForm
-          code={code}
-          by={by}
-          initialName={formSeed.name}
-          initialPhone={formSeed.phone}
-          onDone={() => setFormSeed(null)}
-        />
-      ) : (
-        <div className="volunteer-add-actions">
-          <button
-            type="button"
-            className="records-log-button"
-            onClick={() => setFormSeed({ name: '', phone: '' })}
-          >
-            Add a volunteer
-          </button>
-          <button type="button" onClick={() => fileInputRef.current?.click()}>
-            Import a contact
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".vcf,text/vcard,text/x-vcard"
-            style={{ display: 'none' }}
-            onChange={handleFileChange}
+      <section className="section">
+        <div className="section-head">
+          <h3 className="display-3">Volunteers</h3>
+          {!formSeed && (
+            <div className="volunteer-add-actions">
+              <button
+                type="button"
+                className="btn-quiet"
+                onClick={() => setFormSeed({ name: '', phone: '' })}
+              >
+                + Add a volunteer
+              </button>
+              <button
+                type="button"
+                className="btn-quiet"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                Import a contact
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".vcf,text/vcard,text/x-vcard"
+                style={{ display: 'none' }}
+                onChange={handleFileChange}
+              />
+            </div>
+          )}
+        </div>
+
+        {formSeed && (
+          <AddVolunteerForm
+            code={code}
+            by={by}
+            initialName={formSeed.name}
+            initialPhone={formSeed.phone}
+            onDone={() => setFormSeed(null)}
           />
-        </div>
-      )}
+        )}
 
-      {importError && <p className="form-error">{importError}</p>}
+        {importError && <p className="form-error">{importError}</p>}
 
-      {!formSeed && (
-        <p className="field-hint">
-          On iPhone: open Contacts → pick someone → Share Contact → Save to Files, then import it
-          here.
-        </p>
-      )}
+        {volunteers.length === 0 ? (
+          <p className="records-empty">No volunteers added yet.</p>
+        ) : (
+          <div className="records-list">
+            {volunteers
+              .slice()
+              .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
+              .map((v) => (
+                <div key={v.id} className="row">
+                  <div className="row-main">
+                    <span className="row-title">{v.name}</span>
+                    {v.phone && <span className="row-meta">{v.phone}</span>}
+                    {v.note && <span className="row-meta">{v.note}</span>}
+                    <span className="row-meta">
+                      Added by {v.addedByName} · {new Date(v.at).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              ))}
+          </div>
+        )}
 
-      {volunteers.length === 0 ? (
-        <p className="records-empty">No volunteers added yet.</p>
-      ) : (
-        <div className="records-list">
-          {volunteers
-            .slice()
-            .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime())
-            .map((v) => (
-              <div key={v.id} className="document-row">
-                <span className="document-row-title">{v.name}</span>
-                {v.phone && <span className="document-row-note">{v.phone}</span>}
-                {v.note && <span className="document-row-note">{v.note}</span>}
-                <span className="document-row-meta">
-                  Added by {v.addedByName} · {new Date(v.at).toLocaleDateString()}
-                </span>
-              </div>
-            ))}
-        </div>
-      )}
+        {!formSeed && (
+          <p className="field-hint">
+            On iPhone: open Contacts → pick someone → Share Contact → Save to Files, then import it
+            here.
+          </p>
+        )}
+      </section>
     </div>
   );
 }

@@ -24,12 +24,12 @@ export function LogisticsSlotCard({
 
   if (!task) {
     return (
-      <div className="panel logistics-slot">
-        <h3>{title}</h3>
+      <section className="section">
+        <h3 className="display-3">{title}</h3>
         <p className="logistics-slot-missing">
           This step isn't on the task list anymore, so it can't be confirmed here.
         </p>
-      </div>
+      </section>
     );
   }
 
@@ -45,8 +45,20 @@ export function LogisticsSlotCard({
   const showForm = editing || !task.done;
 
   return (
-    <div className="panel logistics-slot">
-      <h3>{title}</h3>
+    <section className="section">
+      <div className="section-head">
+        <h3 className="display-3">{title}</h3>
+        {!showForm && (
+          <div className="row-actions">
+            <button type="button" className="btn-quiet" onClick={() => setEditing(true)}>
+              Edit
+            </button>
+            <button type="button" className="btn-destructive" onClick={onMarkTbd}>
+              Mark TBD
+            </button>
+          </div>
+        )}
+      </div>
 
       {!showForm && (
         <>
@@ -55,21 +67,13 @@ export function LogisticsSlotCard({
             {task.location && ` · ${task.location}`}
           </p>
           {task.doneByName && (
-            <span className="directory-card-meta">Confirmed by {task.doneByName}</span>
+            <span className="row-meta">Confirmed by {task.doneByName}</span>
           )}
-          <div className="modal-actions">
-            <button type="button" onClick={() => setEditing(true)}>
-              Edit
-            </button>
-            <button type="button" className="btn-danger" onClick={onMarkTbd}>
-              Mark TBD
-            </button>
-          </div>
         </>
       )}
 
       {showForm && (
-        <form className="task-edit-form" onSubmit={handleSubmit}>
+        <form className="logistics-slot-form" onSubmit={handleSubmit}>
           <label htmlFor={`logistics-at-${task.id}`}>Confirmed date/time</label>
           <input
             id={`logistics-at-${task.id}`}
@@ -87,14 +91,16 @@ export function LogisticsSlotCard({
           />
           <div className="modal-actions">
             {editing && (
-              <button type="button" onClick={() => setEditing(false)}>
+              <button type="button" className="btn-quiet" onClick={() => setEditing(false)}>
                 Cancel
               </button>
             )}
-            <button type="submit">Confirm</button>
+            <button type="submit" className="btn-primary">
+              Confirm
+            </button>
           </div>
         </form>
       )}
-    </div>
+    </section>
   );
 }

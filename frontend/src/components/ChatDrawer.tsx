@@ -1,3 +1,4 @@
+import { X } from 'lucide-react';
 import { useRef, useState, type FormEvent } from 'react';
 import * as sessionStore from '../lib/sessionStore';
 import type { ChatMessage } from '../types/domain';
@@ -27,8 +28,14 @@ export function ChatDrawer({ code, messages, by, onClose }: ChatDrawerProps) {
       <aside className="chat-drawer" onClick={(e) => e.stopPropagation()}>
         <div className="chat-header">
           <h2>Chat</h2>
-          <button type="button" className="icon-button" aria-label="Close chat" onClick={onClose}>
-            ✕
+          <button
+            type="button"
+            className="icon-button"
+            aria-label="Close chat"
+            title="Close"
+            onClick={onClose}
+          >
+            <X size={18} aria-hidden="true" />
           </button>
         </div>
 

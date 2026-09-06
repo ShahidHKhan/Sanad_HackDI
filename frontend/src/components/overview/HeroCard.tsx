@@ -7,19 +7,19 @@ interface HeroCardProps {
 
 export function HeroCard({ lastTask, blockerTask }: HeroCardProps) {
   return (
-    <div className="hero-card">
-      <span className="hero-card-label">{lastTask.title}</span>
+    <div className="hero">
+      <span className="eyebrow">{lastTask.title}</span>
       {lastTask.done ? (
         <>
-          <span className="hero-card-value">
+          <span className="hero-value">
             {new Date(lastTask.doneAt!).toLocaleString()}
           </span>
           {lastTask.location && (
-            <span className="hero-card-location">{lastTask.location}</span>
+            <span className="hero-location">{lastTask.location}</span>
           )}
         </>
       ) : (
-        <span className="hero-card-value hero-card-tbd">TBD</span>
+        <span className="hero-value hero-value-pending">Not scheduled</span>
       )}
 
       {blockerTask ? (

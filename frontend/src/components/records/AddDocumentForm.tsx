@@ -58,10 +58,10 @@ export function AddDocumentForm({ code, by, onDone }: AddDocumentFormProps) {
       />
       {error && <p className="form-error">{error}</p>}
       <div className="modal-actions">
-        <button type="button" onClick={onDone} disabled={uploading}>
+        <button type="button" className="btn-quiet" onClick={onDone} disabled={uploading}>
           Cancel
         </button>
-        <button type="submit" disabled={uploading || !title.trim()}>
+        <button type="submit" className="btn-primary" disabled={uploading || !title.trim()}>
           {uploading ? 'Saving…' : 'Save'}
         </button>
       </div>

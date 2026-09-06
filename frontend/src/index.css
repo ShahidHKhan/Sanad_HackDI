@@ -1,40 +1,137 @@
+/* ============================================================
+   Design tokens
+
+   Three ideas hold this together:
+   1. Content sits on the ground. Only modals and drawers are
+      "raised" surfaces — everything else is type and hairlines.
+   2. Three radii, one spacing base, one type ratio (1.25).
+   3. --accent means "primary action or active state" and nothing
+      else. --gold is a small mark only, never a large fill.
+   ============================================================ */
 :root {
   color-scheme: light dark;
-  font-family: system-ui, sans-serif;
-  --font-serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', serif;
-  --page-bg: #eef1e6;
-  --bg: #ffffff;
-  --fg: #1a1a1a;
-  --muted: #4b4f52;
-  --border: #cecece;
-  --focus: #c9a227;
+  font-family: var(--font-ui);
+
+  /* ---- Type ---- */
+  --font-display: 'Newsreader', Georgia, 'Iowan Old Style', serif;
+  --font-ui: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* 1.25 modular scale on a 16px base */
+  --text-2xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5625rem;
+  --text-2xl: 1.953rem;
+  --text-3xl: 2.441rem;
+
+  --leading-tight: 1.15;
+  --leading-snug: 1.35;
+  --leading-body: 1.6;
+
+  --tracking-eyebrow: 0.08em;
+  --tracking-display: -0.015em;
+
+  /* ---- Space (4px base) ---- */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+  --sp-8: 4rem;
+
+  /* ---- Radius (only three) ---- */
+  --r-control: 4px;
+  --r-surface: 10px;
+  --r-pill: 999px;
+
+  /* ---- Surfaces ---- */
+  --ground: #eef1e6;
+  --sunken: #e4e8da;
+  --raised: #fbfcf8;
+
+  /* ---- Ink ---- */
+  --ink: #1a1f1a;
+  --ink-muted: #545b52;
+  --ink-faint: #737a6f;
+  --ink-on-accent: #f4f6ee;
+
+  /* ---- Line ---- */
+  --rule: #d3d8c8;
+  --rule-strong: #b4bba7;
+
+  /* ---- Accent + status ---- */
   --accent: #24312a;
-  --danger: #b91c1c;
-  --panel-bg: #f7f7f8;
-  --blocker-bg: #f3e3ad;
-  --blocker-fg: #8a5a13;
-  --confirmed: #1f7a43;
-  --confirmed-bg: #1f7a4322;
-  --radius-card: 12px;
-  --radius-pill: 999px;
+  --accent-hover: #2f4036;
+  --gold: #7d6115;
+  --gold-soft: #efe6c9;
+  --confirmed: #1b6b3a;
+  --confirmed-soft: #d9e8dd;
+  --danger: #a3231f;
+
+  /* ---- Motion ---- */
+  --dur: 140ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* ---- Elevation ---- */
+  --shadow-raised: 0 12px 32px -8px rgba(26, 31, 26, 0.22);
+  --scrim: rgba(20, 24, 20, 0.42);
+
+  /* ---- Layout ---- */
+  --measure: 42rem;
+  --measure-wide: 55rem;
   --bottom-nav-height: 64px;
+  --z-nav: 15;
+  --z-drawer: 20;
+  --z-modal: 25;
+
+  /* ---- Compatibility aliases ----
+     The Tasks tab, the chat and guidance drawers, and a few odds and ends
+     (landing, code badge, role picker) still reference the old token
+     names. Pointing them at the new tokens lets them inherit the palette
+     for free. Migrate those, then delete this block. */
+  --font-serif: var(--font-display);
+  --bg: var(--raised);
+  --fg: var(--ink);
+  --muted: var(--ink-muted);
+  --border: var(--rule);
+  --panel-bg: var(--sunken);
+  --blocker-bg: var(--gold-soft);
+  --blocker-fg: var(--gold);
+  --confirmed-bg: var(--confirmed-soft);
+  --radius-pill: var(--r-pill);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --page-bg: #12140f;
-    --bg: #1c1f18;
-    --fg: #f2f2f2;
-    --muted: #9ca3af;
-    --border: #333844;
-    --accent: #8a6a2c;
-    --focus: #d9b64a;
-    --danger: #f87171;
-    --panel-bg: #23261d;
-    --blocker-bg: #4a3c14;
-    --blocker-fg: #f3d98a;
-    --confirmed: #4ade80;
-    --confirmed-bg: #4ade8022;
+    --ground: #12140f;
+    --sunken: #1e2119;
+    --raised: #23271d;
+
+    --ink: #eef0e8;
+    --ink-muted: #a9b0a2;
+    --ink-faint: #848b7e;
+    /* Dark mode inverts the primary action instead of filling it with
+       gold. A pale slab with dark ink reads far better on a near-black
+       ground than saturated gold, which dominated every screen. */
+    --ink-on-accent: #14170f;
+
+    --rule: #2f3429;
+    --rule-strong: #454b3c;
+
+    --accent: #e3e8d4;
+    --accent-hover: #f0f3e5;
+    --gold: #d9bf72;
+    --gold-soft: #3a3218;
+    --confirmed: #6fce92;
+    --confirmed-soft: #1e3325;
+    --danger: #f08a86;
+
+    --shadow-raised: 0 12px 32px -8px rgba(0, 0, 0, 0.6);
+    --scrim: rgba(8, 10, 7, 0.6);
   }
 }
 
@@ -43,34 +140,47 @@
 }
 
 :focus-visible {
-  outline: 3px solid var(--focus);
+  outline: 2px solid var(--gold);
   outline-offset: 2px;
 }
 
 body {
   margin: 0;
-  background: var(--page-bg);
-  color: var(--fg);
+  background: var(--ground);
+  color: var(--ink);
+  font-size: var(--text-md);
+  line-height: var(--leading-body);
+  -webkit-font-smoothing: antialiased;
 }
 
+/* Compatibility base. Screens not yet migrated render bare <button>s and
+   still need the old bordered-chip look. The .btn-* tiers below each set
+   every visual property, so they fully override this on migrated screens.
+   Reduce this to a reset once every screen uses a tier. */
 button {
   font: inherit;
   cursor: pointer;
-  border: 1px solid var(--border);
-  background: var(--panel-bg);
-  color: var(--fg);
-  border-radius: 8px;
-  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--rule-strong);
+  background: var(--sunken);
+  color: var(--ink);
+  border-radius: var(--r-control);
+  padding: var(--sp-2) var(--sp-3);
+  transition: background-color var(--dur) var(--ease),
+    color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--ink-faint);
 }
 
 button:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
 button.active {
   background: var(--accent);
-  color: white;
+  color: var(--ink-on-accent);
   border-color: var(--accent);
 }
 
@@ -80,15 +190,97 @@ button.btn-danger {
   background: transparent;
 }
 
+/* ---- Button tiers ---- */
+.btn-primary,
+.btn-secondary,
+.btn-quiet,
+.btn-destructive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  width: fit-content;
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  border-radius: var(--r-control);
+}
+
+/* At most one per screen, and never full-bleed. */
+.btn-primary {
+  padding: var(--sp-2) var(--sp-4);
+  font-weight: 600;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--ink-on-accent);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.btn-secondary {
+  padding: var(--sp-2) var(--sp-4);
+  border: 1px solid var(--rule-strong);
+  background: transparent;
+  color: var(--ink);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--ink);
+  background: var(--sunken);
+}
+
+.btn-quiet {
+  padding: var(--sp-1) 0;
+  border: none;
+  background: none;
+  color: var(--ink-muted);
+}
+
+.btn-quiet:hover:not(:disabled) {
+  color: var(--ink);
+  border-color: transparent;
+}
+
+.btn-destructive {
+  padding: var(--sp-1) 0;
+  border: none;
+  background: none;
+  color: var(--ink-faint);
+}
+
+.btn-destructive:hover:not(:disabled) {
+  color: var(--danger);
+  border-color: transparent;
+}
+
 input,
-textarea {
+textarea,
+select {
   font: inherit;
-  padding: 0.4rem 0.6rem;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--bg);
-  color: var(--fg);
+  font-size: var(--text-sm);
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-control);
+  background: var(--sunken);
+  color: var(--ink);
   width: 100%;
+  transition: border-color var(--dur) var(--ease);
+}
+
+input:hover,
+textarea:hover,
+select:hover {
+  border-color: var(--ink-faint);
+}
+
+select {
+  cursor: pointer;
+}
+
+::placeholder {
+  color: var(--ink-faint);
 }
 
 textarea {
@@ -101,6 +293,224 @@ input[type='radio'] {
   width: auto;
   padding: 0;
   flex: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   Shared primitives
+
+   Each of these replaces a pattern that was previously written out
+   by hand several times over. Content is grouped by type, space and
+   hairlines — not by nesting it inside another bordered box.
+   ============================================================ */
+
+/* Small tracked uppercase label. Was hand-written 4×. */
+.eyebrow {
+  display: block;
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-eyebrow);
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+/* "Secondary aside" italic. Was 8 unrelated rules. */
+.aside-note {
+  font-style: italic;
+  color: var(--ink-muted);
+}
+
+/* Display headings. */
+.display-1,
+.display-2,
+.display-3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-display);
+  margin: 0;
+}
+
+.display-1 {
+  font-size: var(--text-3xl);
+}
+
+.display-2 {
+  font-size: var(--text-2xl);
+}
+
+.display-3 {
+  font-size: var(--text-xl);
+}
+
+/* Sections carry more space above their heading than below it, so a
+   heading binds to its own content rather than to the block above. */
+.section {
+  margin-top: var(--sp-7);
+}
+
+.section:first-child {
+  margin-top: 0;
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-4);
+  margin-bottom: var(--sp-4);
+}
+
+.section-rule {
+  border: none;
+  border-top: 1px solid var(--rule-strong);
+  margin: var(--sp-5) 0 0;
+}
+
+/* One row primitive, replacing five near-identical divider rows. */
+.row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  column-gap: var(--sp-4);
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.row-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  min-width: 0;
+}
+
+.row-title {
+  font-size: var(--text-md);
+  font-weight: 600;
+  line-height: var(--leading-snug);
+}
+
+.row-meta {
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  color: var(--ink-muted);
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  white-space: nowrap;
+}
+
+/* Spans the full row, under both columns. Holds secondary content on the
+   left and the row's action on the right; an expanded form takes the
+   whole width instead. */
+.row-detail {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-4);
+  margin-top: var(--sp-1);
+}
+
+.row-detail > :last-child {
+  margin-left: auto;
+}
+
+.row-detail > .directory-log-form,
+.row-detail > .directory-outcome,
+.row-detail > .directory-call-status {
+  flex: 1 1 100%;
+  margin-left: 0;
+}
+
+/* An attachment belongs under its title, not pushed to the far edge. */
+.row-detail > .document-file-link {
+  margin-left: 0;
+}
+
+/* One chip, three colours. Replaces .tag-chip, .blocker-badge and
+   .directory-used-badge (the last two were identical bar the colour). */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: 0.1rem var(--sp-2);
+  border-radius: var(--r-pill);
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  line-height: 1.6;
+  background: var(--sunken);
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+.chip-gold {
+  background: var(--gold-soft);
+  color: var(--gold);
+}
+
+.chip-confirmed {
+  background: var(--confirmed-soft);
+  color: var(--confirmed);
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+/* Toggle chip — extends the segmented-control language to filters. */
+.toggle-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-1) var(--sp-3);
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  background: var(--sunken);
+  color: var(--ink-muted);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  margin-top: 0;
+  transition: background-color var(--dur) var(--ease),
+    color var(--dur) var(--ease);
+}
+
+.toggle-chip:hover {
+  color: var(--ink);
+}
+
+.toggle-chip.active {
+  background: var(--accent);
+  color: var(--ink-on-accent);
+}
+
+/* A form that appears inline in a list: delimited by rules, not boxed. */
+.inline-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-4) 0;
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule-strong);
 }
 
 .role-choice {
@@ -160,13 +570,13 @@ label {
 }
 
 .panel {
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 1rem 1.25rem;
-  background: var(--bg);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--r-surface);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--raised);
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: var(--sp-2);
   width: 100%;
   max-width: 360px;
 }
@@ -242,9 +652,11 @@ label {
 }
 
 .session-title {
-  font-family: var(--font-serif);
-  font-size: 1rem;
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-display);
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -253,13 +665,14 @@ label {
 
 @media (max-width: 360px) {
   .session-title {
-    font-size: 0.9rem;
+    font-size: var(--text-md);
   }
 }
 
 .session-subtitle {
-  color: var(--muted);
-  font-size: 0.8rem;
+  color: var(--ink-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -277,7 +690,7 @@ label {
   height: 24px;
   border-radius: var(--radius-pill);
   background: var(--accent);
-  color: white;
+  color: var(--ink-on-accent);
   font-size: 0.6rem;
   font-weight: 700;
   display: flex;
@@ -293,17 +706,39 @@ label {
   background: var(--bg);
   border: 1px solid var(--border);
   flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.tab-switcher,
-.segment-switcher {
+.tab-switcher {
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1.5rem;
 }
 
-.content-area > .segment-switcher {
-  justify-content: center;
+.segment-switcher {
+  display: flex;
+  width: fit-content;
+  gap: 2px;
+  margin: 0 auto 1.5rem;
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+}
+
+.segment-switcher button {
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  padding: 0.4rem 1.1rem;
+}
+
+.segment-switcher button.active {
+  background: var(--accent);
+  color: var(--ink-on-accent);
+  border-color: var(--accent);
 }
 
 .side-rail {
@@ -374,60 +809,57 @@ label {
 }
 
 .bottom-nav-icon {
-  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .overview-empty {
-  color: var(--muted);
-  margin: 2rem 0;
-  text-align: center;
+  color: var(--ink-muted);
+  margin: var(--sp-6) 0;
 }
 
-.hero-card {
-  padding: 0 0 1.1rem;
-  margin-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border);
+/* ---- Overview: hero ---- */
+.hero {
   display: flex;
   flex-direction: column;
+  gap: var(--sp-1);
+  margin-bottom: var(--sp-6);
 }
 
-.hero-card-label {
-  font-size: 0.8rem;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.hero-value {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-display);
 }
 
-.hero-card-value {
-  font-family: var(--font-serif);
-  font-size: 1.9rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+.hero-value-pending {
+  color: var(--ink-muted);
 }
 
-.hero-card-tbd {
-  color: var(--muted);
+.hero-location {
+  font-size: var(--text-sm);
+  color: var(--ink-muted);
 }
 
-.hero-card-location {
-  color: var(--muted);
-}
-
+/* A left rule, not a filled rounded box. Pairing an accent edge with a
+   radius and a fill was the single most generic element on the screen. */
 .blocker-strip {
-  margin-top: 0.75rem;
-  background: var(--blocker-bg);
-  color: var(--blocker-fg);
-  border-radius: 8px;
-  padding: 0.5rem 0.75rem;
-  font-weight: 500;
-  font-size: 0.9rem;
+  margin-top: var(--sp-4);
+  padding: var(--sp-1) 0 var(--sp-1) var(--sp-3);
+  border-left: 2px solid var(--gold);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  color: var(--ink-muted);
 }
 
 .blocker-strip-done {
-  background: var(--confirmed-bg);
-  color: var(--confirmed);
+  border-left-color: var(--confirmed);
 }
 
+/* ---- Overview: timeline ---- */
 .timeline {
   position: relative;
   display: flex;
@@ -436,106 +868,132 @@ label {
 
 .timeline-row {
   position: relative;
-  display: flex;
-  gap: 0.75rem;
-  padding: 0 0 1.25rem;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 1.25rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: var(--sp-3);
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--rule);
 }
 
 .timeline-row.timeline-row-last {
-  padding-bottom: 0;
   border-bottom: none;
-  margin-bottom: 0;
 }
 
 .timeline-row:not(.timeline-row-last)::before {
   content: '';
   position: absolute;
-  left: 11px;
-  top: 24px;
+  left: 9px;
+  top: calc(var(--sp-3) + 20px);
   bottom: 0;
-  width: 2px;
-  background: var(--border);
+  width: 1px;
+  background: var(--rule);
 }
 
 .timeline-marker {
   flex: none;
-  width: 24px;
-  height: 24px;
-  border-radius: var(--radius-pill);
-  border: 2px solid var(--border);
+  margin-top: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--rule-strong);
+  background: var(--ground);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.7rem;
-  color: white;
+  color: var(--ink-on-accent);
+}
+
+.timeline-marker-pending {
+  border-style: dashed;
 }
 
 .timeline-marker-done {
   background: var(--confirmed);
   border-color: var(--confirmed);
+  color: var(--ground);
 }
 
 .timeline-marker-blocker {
-  border-color: var(--blocker-fg);
+  border-color: var(--gold);
+  border-width: 2px;
 }
 
 .timeline-row-content {
   display: flex;
   flex-direction: column;
+  gap: var(--sp-1);
+  min-width: 0;
 }
 
 .timeline-title {
+  font-size: var(--text-md);
   font-weight: 600;
+  line-height: var(--leading-snug);
 }
 
 .timeline-status {
-  color: var(--muted);
-  font-size: 0.9rem;
+  color: var(--ink-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
 }
 
 .blocker-badge {
-  background: var(--blocker-bg);
-  color: var(--blocker-fg);
-  font-size: 0.7rem;
+  background: var(--gold-soft);
+  color: var(--gold);
+  font-size: var(--text-2xs);
   font-weight: 600;
-  padding: 0.1rem 0.5rem;
-  border-radius: var(--radius-pill);
-  text-transform: uppercase;
+  padding: 0.1rem var(--sp-2);
+  border-radius: var(--r-pill);
+  letter-spacing: var(--tracking-eyebrow);
 }
 
 .timeline-note {
-  color: var(--muted);
+  color: var(--ink-muted);
   font-style: italic;
-  font-size: 0.85rem;
-  margin: 0.2rem 0 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  margin: 0;
+}
+
+.timeline-tbd {
+  font-style: italic;
 }
 
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--scrim);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
-  z-index: 25;
+  padding: var(--sp-4);
+  z-index: var(--z-modal);
 }
 
+/* Elevation is carried by the shadow, so the border comes off — a
+   hairline plus a wide shadow is two competing edge treatments. */
 .modal {
   max-width: 420px;
   width: 100%;
+  max-height: calc(100vh - var(--sp-8));
+  overflow-y: auto;
+  border: none;
+  padding: var(--sp-5);
+  box-shadow: var(--shadow-raised);
 }
 
+/* The generic form footer (used well beyond modals). Buttons here mix
+   tiers with different padding, so align them on their centres. */
 .modal-actions {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
+  gap: var(--sp-4);
+  margin-top: var(--sp-3);
 }
 
 .tasks-tab {
@@ -592,10 +1050,31 @@ label {
   font-size: 0.85rem;
 }
 
+.pin-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
 .pin-button.active {
   background: var(--blocker-bg);
   border-color: var(--blocker-fg);
   color: var(--blocker-fg);
+}
+
+.link-button {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  padding: 0.15rem 0;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  width: fit-content;
+}
+
+.link-button:hover {
+  color: var(--fg);
 }
 
 .task-edit-form {
@@ -604,97 +1083,144 @@ label {
   gap: 0.35rem;
 }
 
+/* An add-form appears inline in a list. It used to be a bordered card that
+   popped into the middle of a borderless run of rows; now it is delimited
+   by rules instead of boxed. */
 .add-form {
   max-width: none;
+  gap: var(--sp-2);
+  padding: var(--sp-4) 0;
+  border: none;
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule-strong);
+  border-radius: 0;
+  background: none;
 }
 
 .add-form h3 {
-  margin: 0 0 0.25rem;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-display);
+  margin: 0 0 var(--sp-1);
 }
 
+/* Tab wrappers hold .sections, which carry their own vertical rhythm — a
+   uniform gap on top of that flattens the hierarchy back out. */
 .records-tab,
 .records-section {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0;
 }
 
-.records-summary {
-  max-width: none;
-  gap: 0.5rem;
-  border-radius: var(--radius-card);
+/* ---- Records: costs summary ----
+   Was a bordered card containing a divider. Now the total is simply the
+   largest thing on the screen, with the split below it. */
+.summary-value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-display);
 }
 
-.records-summary-total {
+.summary-splits {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--sp-4);
+  border-top: 1px solid var(--rule-strong);
+}
+
+.summary-split {
   display: flex;
   justify-content: space-between;
-  font-size: 1.15rem;
+  gap: var(--sp-4);
+  padding: var(--sp-2) 0;
+  font-size: var(--text-sm);
+  color: var(--ink-muted);
+  border-bottom: 1px solid var(--rule);
+}
+
+.summary-split:last-child {
+  border-bottom: none;
+}
+
+.summary-split-net {
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+.row-amount {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
   font-weight: 600;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--border);
+  letter-spacing: var(--tracking-display);
 }
 
-.records-summary-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.9rem;
-  color: var(--muted);
-}
-
-.records-log-button {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
-  padding: 0.6rem 1rem;
-  font-weight: 600;
-}
-
+/* ---- Logistics ---- */
 .logistics-intro {
-  color: var(--muted);
-  font-size: 0.9rem;
-  margin: 0 0 0.25rem;
-}
-
-.logistics-slot {
-  max-width: none;
+  color: var(--ink-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+  margin: 0;
+  max-width: var(--measure);
 }
 
 .logistics-slot-confirmed {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
   font-weight: 600;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-display);
   margin: 0;
 }
 
 .logistics-slot-missing {
-  color: var(--muted);
+  color: var(--ink-muted);
   font-style: italic;
   margin: 0;
 }
 
 .logistics-context-hint {
-  color: var(--muted);
-  font-size: 0.85rem;
-  margin: 0;
+  color: var(--ink-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+  margin: 0 0 var(--sp-3);
+  max-width: var(--measure);
+}
+
+.logistics-slot-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  max-width: 26rem;
+}
+
+.logistics-context-textarea {
+  max-width: var(--measure);
 }
 
 .volunteer-add-actions {
   display: flex;
-  gap: 0.5rem;
-}
-
-.volunteer-add-actions button {
-  flex: 1;
+  align-items: center;
+  gap: var(--sp-3);
 }
 
 .field-hint {
-  color: var(--muted);
-  font-size: 0.8rem;
-  margin: 0;
+  color: var(--ink-faint);
+  font-size: var(--text-2xs);
+  line-height: var(--leading-snug);
+  margin: var(--sp-3) 0 0;
+  max-width: var(--measure);
 }
 
 .records-empty {
-  color: var(--muted);
-  text-align: center;
-  margin: 1rem 0;
+  color: var(--ink-muted);
+  font-style: italic;
+  margin: var(--sp-4) 0;
 }
 
 .records-list {
@@ -702,40 +1228,15 @@ label {
   flex-direction: column;
 }
 
-.cost-row,
-.document-row {
-  padding: 0.65rem 0;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.cost-row-label,
-.document-row-title {
-  font-weight: 600;
-}
-
-.document-row-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.cost-row-amount {
-  font-weight: 600;
-}
-
 .cost-row-meta,
 .document-row-meta {
-  color: var(--muted);
-  font-size: 0.85rem;
+  color: var(--ink-muted);
+  font-size: var(--text-sm);
 }
 
 .document-row-note {
-  color: var(--muted);
-  font-size: 0.9rem;
+  color: var(--ink-muted);
+  font-size: var(--text-sm);
 }
 
 .document-file-link {
@@ -746,6 +1247,9 @@ label {
 }
 
 .document-file-link button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   background: var(--panel-bg);
   font-size: 0.85rem;
   padding: 0.3rem 0.6rem;
@@ -756,26 +1260,23 @@ label {
   flex-direction: column;
 }
 
-.lookup-panel {
-  max-width: none;
-  gap: 0.6rem;
+/* Sections carry their own rhythm via .section margins, so the wrapper
+   must not add a uniform gap on top of them. */
+.find-tab .records-section {
+  gap: 0;
 }
 
-.lookup-panel h3 {
-  margin: 0;
-}
-
+/* ---- Find: place lookup ----
+   Previously a bordered .panel that held bordered .directory-cards that
+   held bordered chips. Now it is a plain section on the ground. */
 .lookup-form {
   display: flex;
-  gap: 0.5rem;
+  align-items: center;
+  gap: var(--sp-2);
 }
 
 .lookup-form input {
   flex: 1;
-}
-
-.lookup-result-card {
-  gap: 0.25rem;
 }
 
 .lookup-no-phone,
@@ -784,134 +1285,113 @@ label {
 }
 
 .lookup-map-link {
-  font-size: 0.8rem;
-  color: var(--accent);
+  font-size: var(--text-sm);
+  color: var(--ink-muted);
   align-self: flex-start;
+  text-underline-offset: 2px;
+}
+
+.lookup-map-link:hover {
+  color: var(--ink);
 }
 
 .lookup-attribution {
-  color: var(--muted);
-  font-size: 0.7rem;
-  margin: 0.25rem 0 0;
+  color: var(--ink-faint);
+  font-size: var(--text-2xs);
+  margin: var(--sp-2) 0 0;
 }
 
-.directory-section-heading {
-  margin: 0.5rem 0 0;
-  color: var(--muted);
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
+/* ---- Find: directory ---- */
 .directory-filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem 1rem;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
 }
 
+/* Directory filters are toggle chips: the native checkbox stays for
+   semantics and keyboard use but is visually hidden behind the chip. */
+.toggle-chip input[type='checkbox'] {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.toggle-chip:has(input:focus-visible) {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* A plain checkbox row inside an add-form — this keeps its visible box. */
 .filter-chip {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.85rem;
-  color: var(--fg);
-  margin-top: 0;
+  gap: var(--sp-2);
+  font-size: var(--text-sm);
+  color: var(--ink);
+  margin-top: var(--sp-1);
 }
 
-.directory-card {
-  padding: 0.75rem 0;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.directory-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.directory-card-name {
-  font-weight: 600;
-}
-
-.directory-card-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex: none;
+.directory-search {
+  margin-top: var(--sp-4);
 }
 
 .directory-remove-button {
-  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  background: none;
   border: none;
-  color: var(--muted);
-  font-size: 0.85rem;
-  padding: 0.1rem 0.3rem;
+  color: var(--ink-faint);
+  padding: var(--sp-1);
   line-height: 1;
+  transition: color var(--dur) var(--ease);
 }
 
 .directory-remove-button:hover {
   color: var(--danger);
-}
-
-.directory-used-badge {
-  background: var(--confirmed-bg);
-  color: var(--confirmed);
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 0.1rem 0.5rem;
-  border-radius: var(--radius-pill);
-  text-transform: uppercase;
-  flex: none;
+  border-color: transparent;
 }
 
 .directory-card-meta {
-  color: var(--muted);
-  font-size: 0.85rem;
-}
-
-.directory-card-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  margin-top: 0.15rem;
-}
-
-.tag-chip {
-  background: var(--panel-bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
-  font-size: 0.7rem;
-  padding: 0.1rem 0.55rem;
+  color: var(--ink-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
 }
 
 .directory-card-notes {
-  color: var(--muted);
-  font-size: 0.9rem;
-  margin: 0.15rem 0 0;
+  color: var(--ink-muted);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  margin: var(--sp-1) 0 0;
 }
 
 .directory-call-status {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--sp-2);
   flex-wrap: wrap;
-  margin-top: 0.4rem;
+}
+
+.directory-call-idle {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--sp-1);
 }
 
 .directory-log-form {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  margin-top: 0.4rem;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--rule);
 }
 
 .directory-sync-note {
-  color: var(--muted);
-  font-size: 0.8rem;
+  color: var(--ink-faint);
+  font-size: var(--text-2xs);
   font-style: italic;
   margin: 0;
 }
@@ -919,13 +1399,12 @@ label {
 .directory-outcome {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
-  margin-top: 0.4rem;
-  padding-top: 0.4rem;
-  border-top: 1px solid var(--border);
+  gap: var(--sp-1);
+  margin-top: var(--sp-2);
 }
 
 .directory-outcome-status {
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 
@@ -938,75 +1417,72 @@ label {
 }
 
 .directory-outcome-note {
-  color: var(--muted);
-  font-size: 0.9rem;
+  color: var(--ink-muted);
+  font-size: var(--text-sm);
 }
 
 .directory-used-note {
   color: var(--confirmed);
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   font-style: italic;
 }
 
 .announce-tab {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  max-width: var(--measure);
 }
 
-.announce-heading {
-  font-size: 0.8rem;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 0;
-}
-
+/* The announcement is quoted content — a left rule marks it as the thing
+   being shared, rather than boxing it in a bordered card. */
 .announce-text {
   white-space: pre-wrap;
   font-family: inherit;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  padding: 1rem 1.25rem;
-  background: var(--bg);
-  margin: 0;
+  font-size: var(--text-md);
+  line-height: var(--leading-body);
+  border-left: 2px solid var(--rule-strong);
+  padding: var(--sp-1) 0 var(--sp-1) var(--sp-4);
+  margin: var(--sp-3) 0 0;
 }
 
-.announce-ai-actions,
 .announce-actions {
   display: flex;
-  gap: 0.5rem;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-top: var(--sp-5);
 }
 
-.announce-share-button {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
-  flex: 1;
+/* Pushes the AI action away from the two share controls, so the primary
+   action isn't sitting in a row of three equal-weight buttons. */
+.announce-ai-action {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-left: auto;
 }
 
 .announce-copy-status {
   color: var(--confirmed);
-  font-size: 0.85rem;
-  margin: 0;
+  font-size: var(--text-sm);
+  margin: var(--sp-3) 0 0;
 }
 
 .guidance-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--scrim);
   display: flex;
   justify-content: flex-end;
   z-index: 20;
 }
 
 .guidance-drawer {
-  background: var(--bg);
+  background: var(--raised);
   width: min(400px, 100%);
   height: 100%;
   overflow-y: auto;
   padding: 1.25rem;
-  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-raised);
 }
 
 .guidance-header {
@@ -1099,19 +1575,19 @@ label {
 .chat-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--scrim);
   display: flex;
   justify-content: flex-start;
   z-index: 20;
 }
 
 .chat-drawer {
-  background: var(--bg);
+  background: var(--raised);
   width: min(360px, 100%);
   height: 100%;
   display: flex;
   flex-direction: column;
-  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-raised);
 }
 
 .chat-header {
@@ -1168,7 +1644,7 @@ label {
 
 .chat-message.own .chat-message-bubble {
   background: var(--accent);
-  color: white;
+  color: var(--ink-on-accent);
   border-color: var(--accent);
 }
 
@@ -1200,9 +1676,8 @@ label {
    they actually fit, not a small fixed-width card floating in blank space
    sized for a mouse-driven desktop window. */
 @media (min-width: 860px) and (pointer: fine) {
-  body {
-    background: var(--bg);
-  }
+  /* The sage ground stays on every viewport. Overriding it to white here
+     was why the desktop build read blanker and more generic than mobile. */
 
   .session-page {
     display: flex;
@@ -1252,10 +1727,6 @@ label {
     content: none;
   }
 
-  .bottom-nav-icon {
-    font-size: 1rem;
-  }
-
   .content-area {
     flex: 1 1 auto;
     display: flex;
@@ -1281,10 +1752,39 @@ label {
     min-height: 0;
   }
 
+  /* A reading measure, left-aligned. Without a max-width the column ran
+     the full window (~1400px at 1920), giving 200-character lines and
+     full-bleed forms and buttons. The remaining space now reads as margin
+     rather than a void. */
   .content-area main {
     flex: 1 1 auto;
     overflow-y: auto;
-    padding: 1.5rem 2rem;
+    padding: var(--sp-6) var(--sp-6) var(--sp-8);
+  }
+
+  .content-area main > * {
+    max-width: var(--measure);
+  }
+
+  /* Tasks rows carry several inline controls and need the extra width. */
+  .content-area main > .tasks-tab {
+    max-width: var(--measure-wide);
+  }
+
+  /* Left-align switchers that sit inside a tab, so they line up with the
+     content beneath them rather than floating off-centre. */
+  .find-tab > .segment-switcher,
+  .records-tab > .segment-switcher {
+    margin-left: 0;
+  }
+
+  /* Panels stretched to the full column width because every variant
+     overrode .panel's max-width to none. */
+  .add-form,
+  .lookup-panel,
+  .records-summary,
+  .logistics-slot {
+    max-width: var(--measure);
   }
 
   .content-area > .segment-switcher {
@@ -1346,7 +1846,7 @@ label {
   }
 
   .rail-toggle-option.active {
-    color: white;
+    color: var(--ink-on-accent);
   }
 
   .rail-toggle-badge {
@@ -1355,7 +1855,7 @@ label {
     padding: 1rem 0.5rem;
     text-align: center;
     font-weight: 600;
-    color: white;
+    color: var(--ink-on-accent);
     background: var(--accent);
     border-radius: 999px;
   }

@@ -105,10 +105,10 @@ export function SessionDetailsModal({ code, session, onClose }: SessionDetailsMo
           onChange={(e) => setCoordinatorPhone(e.target.value)}
         />
         <div className="modal-actions">
-          <button type="button" onClick={onClose}>
+          <button type="button" className="btn-quiet" onClick={onClose}>
             Cancel
           </button>
-          <button type="submit">Save</button>
+          <button type="submit" className="btn-primary">Save</button>
         </div>
       </form>
     </div>
