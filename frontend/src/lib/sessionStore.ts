@@ -5,6 +5,7 @@
 // localStorage version, only the bodies now call Postgres.
 import { supabase } from './supabase';
 import { generateCode } from './code';
+import { generateUuid } from './uuid';
 import type { AnnouncementFacts } from './announceTemplate';
 import { seedTasks } from '../data/defaultTasks';
 import type {
@@ -492,7 +493,7 @@ export async function addTask(
   if (fetchError) throw fetchError;
   const maxSortOrder = (rows ?? []).reduce((max, r) => Math.max(max, r.sort_order), -1);
 
-  const id = crypto.randomUUID();
+  const id = generateUuid();
   const { error } = await supabase.from('tasks').insert({
     id,
     session_code: code,
@@ -629,7 +630,7 @@ export async function uploadDocumentFile(code: string, file: File): Promise<Uplo
   if (file.size > MAX_DOCUMENT_FILE_BYTES) {
     throw new Error('File is too large (10MB max).');
   }
-  const path = `${code}/${crypto.randomUUID()}-${file.name}`;
+  const path = `${code}/${generateUuid()}-${file.name}`;
   const { error } = await supabase.storage.from('documents').upload(path, file);
   if (error) throw error;
   return { path, name: file.name, type: file.type, size: file.size };

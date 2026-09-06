@@ -1172,8 +1172,13 @@ label {
    browser this drops the floating-card-on-canvas look entirely: the app
    fills the window edge-to-edge, with a persistent left sidebar nav
    (repurposing the same bottom-nav markup) instead of a bottom tab bar,
-   matching a native desktop app rather than a mobile view stretched wide. */
-@media (min-width: 860px) {
+   matching a native desktop app rather than a mobile view stretched wide.
+   Gated on (pointer: fine), not just width — a CSS width past 860px alone
+   also matches large phones/tablets held in hand (or a phone's "Request
+   desktop site"), which should still get the touch-first mobile layout
+   they actually fit, not a small fixed-width card floating in blank space
+   sized for a mouse-driven desktop window. */
+@media (min-width: 860px) and (pointer: fine) {
   body {
     background: var(--bg);
   }
