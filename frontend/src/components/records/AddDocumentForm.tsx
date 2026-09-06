@@ -10,12 +10,23 @@ interface AddDocumentFormProps {
 export function AddDocumentForm({ code, by, onDone }: AddDocumentFormProps) {
   const [title, setTitle] = useState('');
   const [note, setNote] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!title.trim()) return;
-    sessionStore.addDocument(code, { title: title.trim(), note: note.trim() }, by);
-    onDone();
+    setError(null);
+    setUploading(true);
+    try {
+      const uploaded = file ? await sessionStore.uploadDocumentFile(code, file) : undefined;
+      await sessionStore.addDocument(code, { title: title.trim(), note: note.trim(), file: uploaded }, by);
+      onDone();
+    } catch {
+      setError('Could not save this document. Please try again.');
+      setUploading(false);
+    }
   }
 
   return (
@@ -27,6 +38,7 @@ export function AddDocumentForm({ code, by, onDone }: AddDocumentFormProps) {
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="e.g. Death certificate (10 copies)"
+        disabled={uploading}
       />
       <label htmlFor="doc-note">Note</label>
       <input
@@ -34,12 +46,24 @@ export function AddDocumentForm({ code, by, onDone }: AddDocumentFormProps) {
         value={note}
         onChange={(e) => setNote(e.target.value)}
         placeholder="e.g. Layla has originals"
+        disabled={uploading}
       />
+      <label htmlFor="doc-file">Attach a file (optional)</label>
+      <input
+        id="doc-file"
+        type="file"
+        accept="application/pdf,image/*"
+        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+        disabled={uploading}
+      />
+      {error && <p className="form-error">{error}</p>}
       <div className="modal-actions">
-        <button type="button" onClick={onDone}>
+        <button type="button" onClick={onDone} disabled={uploading}>
           Cancel
         </button>
-        <button type="submit">Save</button>
+        <button type="submit" disabled={uploading || !title.trim()}>
+          {uploading ? 'Saving…' : 'Save'}
+        </button>
       </div>
     </form>
   );

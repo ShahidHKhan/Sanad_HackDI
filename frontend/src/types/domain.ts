@@ -51,6 +51,10 @@ export interface DocumentEntry {
   addedByPid: Pid;
   addedByName: string;
   at: string;
+  filePath: string | null;
+  fileName: string | null;
+  fileType: string | null;
+  fileSize: number | null;
 }
 
 export interface SessionMeta {

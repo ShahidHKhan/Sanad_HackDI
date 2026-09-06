@@ -4,6 +4,7 @@ import { AnnounceTab } from '../components/announce/AnnounceTab';
 import { ChatDrawer } from '../components/ChatDrawer';
 import { CodeBadge } from '../components/CodeBadge';
 import { ErrorState } from '../components/ErrorState';
+import { FindTab } from '../components/find/FindTab';
 import { GuidanceDrawer } from '../components/GuidanceDrawer';
 import { HalfToggle } from '../components/HalfToggle';
 import { JoinByCodeForm } from '../components/JoinByCodeForm';
@@ -15,11 +16,12 @@ import { useSessionState } from '../hooks/useSessionState';
 import * as chatSeen from '../lib/chatSeen';
 import * as membership from '../lib/membership';
 
-type TabId = 'overview' | 'tasks' | 'records' | 'announce';
+type TabId = 'overview' | 'tasks' | 'find' | 'records' | 'announce';
 
 const NAV_ITEMS: { id: TabId; label: string; icon: string }[] = [
   { id: 'overview', label: 'Overview', icon: '🕐' },
   { id: 'tasks', label: 'Tasks', icon: '✅' },
+  { id: 'find', label: 'Find', icon: '🕌' },
   { id: 'records', label: 'Records', icon: '📄' },
   { id: 'announce', label: 'Announce', icon: '📢' },
 ];
@@ -142,6 +144,7 @@ export function SessionPage() {
         {tab === 'tasks' && (
           <TasksTab code={normalizedCode} state={state} by={by} isAdmin={isAdmin} />
         )}
+        {tab === 'find' && <FindTab code={normalizedCode} state={state} by={by} />}
         {tab === 'records' && (
           <RecordsTab code={normalizedCode} state={state} by={by} />
         )}

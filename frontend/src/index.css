@@ -681,6 +681,13 @@ label {
   font-weight: 600;
 }
 
+.document-row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
 .cost-row-amount {
   font-weight: 600;
 }
@@ -694,6 +701,19 @@ label {
 .document-row-note {
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+.document-file-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.15rem;
+}
+
+.document-file-link button {
+  background: var(--panel-bg);
+  font-size: 0.85rem;
+  padding: 0.3rem 0.6rem;
 }
 
 .find-tab {
@@ -919,6 +939,7 @@ label {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
 }
 
+.announce-ai-actions,
 .announce-actions {
   display: flex;
   gap: 0.5rem;

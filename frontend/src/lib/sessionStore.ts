@@ -5,6 +5,7 @@
 // localStorage version, only the bodies now call Postgres.
 import { supabase } from './supabase';
 import { generateCode } from './code';
+import type { AnnouncementFacts } from './announceTemplate';
 import { seedTasks } from '../data/defaultTasks';
 import type {
   Cemetery,
@@ -79,6 +80,10 @@ function rowToDocument(row: any): DocumentEntry {
     addedByPid: row.added_by_pid,
     addedByName: row.added_by_name,
     at: row.at,
+    filePath: row.file_path,
+    fileName: row.file_name,
+    fileType: row.file_type,
+    fileSize: row.file_size,
   };
 }
 
@@ -606,9 +611,39 @@ export async function addCost(
   if (error) throw error;
 }
 
+export interface UploadedDocumentFile {
+  path: string;
+  name: string;
+  type: string;
+  size: number;
+}
+
+const MAX_DOCUMENT_FILE_BYTES = 10 * 1024 * 1024; // 10MB
+
+// A document's file lives in the private "documents" storage bucket at
+// {session_code}/{uuid}-{original filename} — grouped by session, collision
+// -proofed with a uuid prefix. Private (not a public bucket) because a
+// death certificate can carry real personal info; view links are always
+// generated on demand via getDocumentFileUrl, never a stored public URL.
+export async function uploadDocumentFile(code: string, file: File): Promise<UploadedDocumentFile> {
+  if (file.size > MAX_DOCUMENT_FILE_BYTES) {
+    throw new Error('File is too large (10MB max).');
+  }
+  const path = `${code}/${crypto.randomUUID()}-${file.name}`;
+  const { error } = await supabase.storage.from('documents').upload(path, file);
+  if (error) throw error;
+  return { path, name: file.name, type: file.type, size: file.size };
+}
+
+export async function getDocumentFileUrl(path: string): Promise<string> {
+  const { data, error } = await supabase.storage.from('documents').createSignedUrl(path, 60 * 60);
+  if (error) throw error;
+  return data.signedUrl;
+}
+
 export async function addDocument(
   code: string,
-  fields: { title: string; note: string },
+  fields: { title: string; note: string; file?: UploadedDocumentFile },
   by: { pid: Pid; name: string },
 ): Promise<void> {
   const { error } = await supabase.from('documents').insert({
@@ -618,7 +653,28 @@ export async function addDocument(
     added_by_pid: by.pid,
     added_by_name: by.name,
     at: nowIso(),
+    file_path: fields.file?.path ?? null,
+    file_name: fields.file?.name ?? null,
+    file_type: fields.file?.type ?? null,
+    file_size: fields.file?.size ?? null,
   });
+  if (error) throw error;
+}
+
+export async function removeDocument(
+  code: string,
+  documentId: string,
+  filePath: string | null,
+): Promise<void> {
+  if (filePath) {
+    const { error: storageError } = await supabase.storage.from('documents').remove([filePath]);
+    if (storageError) throw storageError;
+  }
+  const { error } = await supabase
+    .from('documents')
+    .delete()
+    .eq('session_code', code)
+    .eq('id', documentId);
   if (error) throw error;
 }
 
@@ -911,4 +967,15 @@ export async function addVolunteer(
     at: nowIso(),
   });
   if (error) throw error;
+}
+
+// --- announce: AI-written option -----------------------------------------
+
+export async function generateAnnouncementText(facts: AnnouncementFacts): Promise<string> {
+  const { data, error } = await supabase.functions.invoke('write-announcement', {
+    body: facts,
+  });
+  if (error) throw error;
+  if (data?.error) throw new Error(data.error);
+  return data.text;
 }

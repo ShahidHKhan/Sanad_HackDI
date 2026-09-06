@@ -3,17 +3,17 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { CodeBadge } from '../components/CodeBadge';
 import { ComingSoonPlaceholder } from '../components/ComingSoonPlaceholder';
 import { ErrorState } from '../components/ErrorState';
-import { FindTab } from '../components/find/FindTab';
 import { HalfToggle } from '../components/HalfToggle';
 import { JoinByCodeForm } from '../components/JoinByCodeForm';
+import { OverviewTab } from '../components/overview/OverviewTab';
 import { VolunteersTab } from '../components/volunteers/VolunteersTab';
 import { useSessionState } from '../hooks/useSessionState';
 import * as membership from '../lib/membership';
 
-type TabId = 'find' | 'logistics' | 'volunteers';
+type TabId = 'overview' | 'logistics' | 'volunteers';
 
 const NAV_ITEMS: { id: TabId; label: string; icon: string }[] = [
-  { id: 'find', label: 'Find', icon: '🕌' },
+  { id: 'overview', label: 'Overview', icon: '🕐' },
   { id: 'logistics', label: 'Logistics', icon: '🗒️' },
   { id: 'volunteers', label: 'Volunteers', icon: '🤝' },
 ];
@@ -24,7 +24,7 @@ export function MasjidPage() {
   const normalizedCode = code.toUpperCase();
   const { status, state } = useSessionState(normalizedCode);
   const [joinedTick, setJoinedTick] = useState(0);
-  const [tab, setTab] = useState<TabId>('find');
+  const [tab, setTab] = useState<TabId>('overview');
 
   if (status === 'loading') {
     return <div className="loading-state">Loading…</div>;
@@ -86,7 +86,7 @@ export function MasjidPage() {
       <HalfToggle code={normalizedCode} active="masjid" hideFamily={myRole === 'masjid'} />
 
       <main>
-        {tab === 'find' && <FindTab code={normalizedCode} state={state} by={by} />}
+        {tab === 'overview' && <OverviewTab state={state} />}
         {tab === 'logistics' && (
           <ComingSoonPlaceholder message="A future home for ghusl facility availability, burial slot confirmation, and related logistics." />
         )}
