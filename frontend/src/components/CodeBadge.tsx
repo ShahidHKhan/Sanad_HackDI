@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { copyText } from '../lib/clipboard';
 
 interface CodeBadgeProps {
   code: string;
@@ -9,12 +10,10 @@ export function CodeBadge({ code }: CodeBadgeProps) {
 
   async function copyInviteLink() {
     const url = `${window.location.origin}/s/${code}`;
-    try {
-      await navigator.clipboard.writeText(url);
+    const ok = await copyText(url);
+    if (ok) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // clipboard API unavailable/blocked — nothing more we can do here
     }
   }
 

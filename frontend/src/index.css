@@ -676,6 +676,21 @@ label {
   margin: 0;
 }
 
+.volunteer-add-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.volunteer-add-actions button {
+  flex: 1;
+}
+
+.field-hint {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 0;
+}
+
 .records-empty {
   color: var(--muted);
   text-align: center;
@@ -968,6 +983,12 @@ label {
   color: white;
   border-color: var(--accent);
   flex: 1;
+}
+
+.announce-copy-status {
+  color: var(--confirmed);
+  font-size: 0.85rem;
+  margin: 0;
 }
 
 .guidance-overlay {

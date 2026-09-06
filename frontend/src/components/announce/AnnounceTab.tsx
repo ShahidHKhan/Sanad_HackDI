@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { copyText } from '../../lib/clipboard';
 import { OPENING_LINE, buildAnnouncementText, getAnnouncementFacts } from '../../lib/announceTemplate';
 import * as sessionStore from '../../lib/sessionStore';
 import type { SessionState } from '../../types/domain';
@@ -8,7 +9,7 @@ interface AnnounceTabProps {
 }
 
 export function AnnounceTab({ state }: AnnounceTabProps) {
-  const [copied, setCopied] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<'copied' | 'failed' | null>(null);
   const [aiBody, setAiBody] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,13 +32,9 @@ export function AnnounceTab({ state }: AnnounceTabProps) {
   }
 
   async function copyToClipboard() {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // clipboard API unavailable/blocked — nothing more we can do here
-    }
+    const ok = await copyText(text);
+    setCopyStatus(ok ? 'copied' : 'failed');
+    setTimeout(() => setCopyStatus(null), 2500);
   }
 
   async function handleShare() {
@@ -45,8 +42,11 @@ export function AnnounceTab({ state }: AnnounceTabProps) {
       try {
         await navigator.share({ text });
         return;
-      } catch {
-        // user cancelled or share failed — fall through to clipboard
+      } catch (err) {
+        if (err instanceof DOMException && err.name === 'AbortError') {
+          return; // user cancelled the share sheet — don't also copy
+        }
+        // real failure (e.g. no share target available) — fall through
       }
     }
     await copyToClipboard();
@@ -81,9 +81,16 @@ export function AnnounceTab({ state }: AnnounceTabProps) {
           Share
         </button>
         <button type="button" onClick={copyToClipboard}>
-          {copied ? 'Copied!' : 'Copy'}
+          Copy
         </button>
       </div>
+
+      {copyStatus === 'copied' && (
+        <p className="announce-copy-status">Copied to clipboard.</p>
+      )}
+      {copyStatus === 'failed' && (
+        <p className="form-error">Couldn't copy — press and hold the text above to copy it manually.</p>
+      )}
     </div>
   );
 }

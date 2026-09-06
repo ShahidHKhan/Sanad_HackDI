@@ -5,11 +5,19 @@ interface AddVolunteerFormProps {
   code: string;
   by: { pid: string; name: string };
   onDone: () => void;
+  initialName?: string;
+  initialPhone?: string;
 }
 
-export function AddVolunteerForm({ code, by, onDone }: AddVolunteerFormProps) {
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+export function AddVolunteerForm({
+  code,
+  by,
+  onDone,
+  initialName = '',
+  initialPhone = '',
+}: AddVolunteerFormProps) {
+  const [name, setName] = useState(initialName);
+  const [phone, setPhone] = useState(initialPhone);
   const [note, setNote] = useState('');
 
   function handleSubmit(e: FormEvent) {
@@ -21,7 +29,7 @@ export function AddVolunteerForm({ code, by, onDone }: AddVolunteerFormProps) {
 
   return (
     <form className="panel add-form" onSubmit={handleSubmit}>
-      <h3>Add a volunteer</h3>
+      <h3>{initialName || initialPhone ? 'Review imported contact' : 'Add a volunteer'}</h3>
       <label htmlFor="volunteer-name">Name</label>
       <input
         id="volunteer-name"
