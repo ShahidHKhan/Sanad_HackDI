@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { CodeBadge } from '../components/CodeBadge';
-import { ComingSoonPlaceholder } from '../components/ComingSoonPlaceholder';
 import { ErrorState } from '../components/ErrorState';
 import { HalfToggle } from '../components/HalfToggle';
 import { JoinByCodeForm } from '../components/JoinByCodeForm';
+import { LogisticsTab } from '../components/logistics/LogisticsTab';
 import { OverviewTab } from '../components/overview/OverviewTab';
+import { SideRailToggle } from '../components/SideRailToggle';
 import { VolunteersTab } from '../components/volunteers/VolunteersTab';
 import { useSessionState } from '../hooks/useSessionState';
 import * as membership from '../lib/membership';
@@ -61,40 +62,6 @@ export function MasjidPage() {
 
   return (
     <div className="session-page">
-      <header className="session-header">
-        <button
-          type="button"
-          className="icon-button"
-          aria-label="Back"
-          onClick={() => navigate('/')}
-        >
-          ←
-        </button>
-
-        <div className="session-title-block">
-          <h1 className="session-title">Masjid Portal</h1>
-          <span className="session-subtitle">
-            {state.session.deceasedName || 'Deceased’s name not yet set'}
-          </span>
-        </div>
-
-        <div className="session-header-actions">
-          <CodeBadge code={normalizedCode} />
-        </div>
-      </header>
-
-      <HalfToggle code={normalizedCode} active="masjid" hideFamily={myRole === 'masjid'} />
-
-      <main>
-        {tab === 'overview' && <OverviewTab state={state} />}
-        {tab === 'logistics' && (
-          <ComingSoonPlaceholder message="A future home for ghusl facility availability, burial slot confirmation, and related logistics." />
-        )}
-        {tab === 'volunteers' && (
-          <VolunteersTab code={normalizedCode} volunteers={state.volunteers} by={by} />
-        )}
-      </main>
-
       <nav className="bottom-nav">
         {NAV_ITEMS.map((item) => (
           <button
@@ -108,6 +75,52 @@ export function MasjidPage() {
           </button>
         ))}
       </nav>
+
+      <div className="content-area">
+        <header className="session-header">
+          <button
+            type="button"
+            className="icon-button"
+            aria-label="Back"
+            onClick={() => navigate('/')}
+          >
+            ←
+          </button>
+
+          <div className="session-title-block">
+            <h1 className="session-title">Masjid Portal</h1>
+            <span className="session-subtitle">
+              {state.session.deceasedName || 'Deceased’s name not yet set'}
+            </span>
+          </div>
+
+          <div className="session-header-actions">
+            <CodeBadge code={normalizedCode} />
+          </div>
+        </header>
+
+        <HalfToggle code={normalizedCode} active="masjid" hideFamily={myRole === 'masjid'} />
+
+        <div className="content-body">
+          <main>
+            {tab === 'overview' && <OverviewTab state={state} />}
+            {tab === 'logistics' && (
+              <LogisticsTab code={normalizedCode} state={state} by={by} />
+            )}
+            {tab === 'volunteers' && (
+              <VolunteersTab code={normalizedCode} volunteers={state.volunteers} by={by} />
+            )}
+          </main>
+
+          <aside className="side-rail">
+            <SideRailToggle
+              code={normalizedCode}
+              active="masjid"
+              hideFamily={myRole === 'masjid'}
+            />
+          </aside>
+        </div>
+      </div>
     </div>
   );
 }

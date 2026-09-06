@@ -11,6 +11,7 @@ import { JoinByCodeForm } from '../components/JoinByCodeForm';
 import { OverviewTab } from '../components/overview/OverviewTab';
 import { RecordsTab } from '../components/records/RecordsTab';
 import { SessionDetailsModal } from '../components/SessionDetailsModal';
+import { SideRailToggle } from '../components/SideRailToggle';
 import { TasksTab } from '../components/tasks/TasksTab';
 import { useSessionState } from '../hooks/useSessionState';
 import * as chatSeen from '../lib/chatSeen';
@@ -98,59 +99,6 @@ export function SessionPage() {
 
   return (
     <div className="session-page">
-      <header className="session-header">
-        <button
-          type="button"
-          className="icon-button"
-          aria-label="Back"
-          onClick={() => navigate('/')}
-        >
-          ←
-        </button>
-
-        <div className="session-title-block">
-          <h1 className="session-title">Janaza Organizer</h1>
-          <span className="session-subtitle">
-            {state.session.deceasedName || 'Deceased’s name not yet set'}
-          </span>
-        </div>
-
-        <div className="session-header-actions">
-          <span className="avatar-badge">{getInitials(member.name)}</span>
-          <CodeBadge code={normalizedCode} />
-          <button
-            type="button"
-            className="icon-button"
-            aria-label="Open guidance"
-            onClick={() => setGuidanceOpen(true)}
-          >
-            📖
-          </button>
-          <button
-            type="button"
-            className="icon-button"
-            aria-label="Edit session details"
-            onClick={() => setDetailsOpen(true)}
-          >
-            ✏️
-          </button>
-        </div>
-      </header>
-
-      <HalfToggle code={normalizedCode} active="family" />
-
-      <main>
-        {tab === 'overview' && <OverviewTab state={state} />}
-        {tab === 'tasks' && (
-          <TasksTab code={normalizedCode} state={state} by={by} isAdmin={isAdmin} />
-        )}
-        {tab === 'find' && <FindTab code={normalizedCode} state={state} by={by} />}
-        {tab === 'records' && (
-          <RecordsTab code={normalizedCode} state={state} by={by} />
-        )}
-        {tab === 'announce' && <AnnounceTab state={state} />}
-      </main>
-
       <nav className="bottom-nav">
         {NAV_ITEMS.map((item) => (
           <button
@@ -165,18 +113,78 @@ export function SessionPage() {
         ))}
       </nav>
 
-      <button
-        type="button"
-        className="chat-fab"
-        aria-label="Open chat"
-        onClick={() => {
-          chatSeen.markSeen(normalizedCode);
-          setChatOpen(true);
-        }}
-      >
-        💬
-        {hasUnreadChat && <span className="unread-dot" />}
-      </button>
+      <div className="content-area">
+        <header className="session-header">
+          <button
+            type="button"
+            className="icon-button"
+            aria-label="Back"
+            onClick={() => navigate('/')}
+          >
+            ←
+          </button>
+
+          <div className="session-title-block">
+            <h1 className="session-title">Janaza Organizer</h1>
+            <span className="session-subtitle">
+              {state.session.deceasedName || 'Deceased’s name not yet set'}
+            </span>
+          </div>
+
+          <div className="session-header-actions">
+            <span className="avatar-badge">{getInitials(member.name)}</span>
+            <CodeBadge code={normalizedCode} />
+            <button
+              type="button"
+              className="icon-button"
+              aria-label="Open guidance"
+              onClick={() => setGuidanceOpen(true)}
+            >
+              📖
+            </button>
+            <button
+              type="button"
+              className="icon-button"
+              aria-label="Open chat"
+              onClick={() => {
+                chatSeen.markSeen(normalizedCode);
+                setChatOpen(true);
+              }}
+            >
+              💬
+              {hasUnreadChat && <span className="unread-dot" />}
+            </button>
+            <button
+              type="button"
+              className="icon-button"
+              aria-label="Edit session details"
+              onClick={() => setDetailsOpen(true)}
+            >
+              ✏️
+            </button>
+          </div>
+        </header>
+
+        <HalfToggle code={normalizedCode} active="family" />
+
+        <div className="content-body">
+          <main>
+            {tab === 'overview' && <OverviewTab state={state} />}
+            {tab === 'tasks' && (
+              <TasksTab code={normalizedCode} state={state} by={by} isAdmin={isAdmin} />
+            )}
+            {tab === 'find' && <FindTab code={normalizedCode} state={state} by={by} />}
+            {tab === 'records' && (
+              <RecordsTab code={normalizedCode} state={state} by={by} />
+            )}
+            {tab === 'announce' && <AnnounceTab state={state} />}
+          </main>
+
+          <aside className="side-rail">
+            <SideRailToggle code={normalizedCode} active="family" />
+          </aside>
+        </div>
+      </div>
 
       {detailsOpen && (
         <SessionDetailsModal

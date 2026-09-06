@@ -950,6 +950,76 @@ export async function logDirectoryOutcome(
   }
 }
 
+// --- logistics (Masjid half, direct confirmation of facility-side steps) --
+//
+// The masjid board is the authoritative source for these two Overview steps
+// — they shouldn't need a family member to call them and log the outcome
+// via the Find tab (logDirectoryOutcome above) just to get their own
+// confirmed slot onto the shared timeline. Same underlying setTaskConfirmed
+// as the Find-tab sync, so both paths update the one shared task consistently.
+
+export async function confirmGhuslSlot(
+  code: string,
+  fields: { at: string; location?: string },
+  by: { pid: Pid; name: string },
+): Promise<void> {
+  await setTaskConfirmed(code, 'ghusl-kafan-completed', fields, by);
+}
+
+export async function confirmJanazahSlot(
+  code: string,
+  fields: { at: string; location?: string },
+  by: { pid: Pid; name: string },
+): Promise<void> {
+  await setTaskConfirmed(code, 'janazah-prayer-held', fields, by);
+}
+
+// A free-text "extra context" note, modeled as one more well-known task
+// (like the two above) so it reuses setTaskDelegateNote/state.tasks with no
+// schema change. Sessions created after this task was added to
+// seedTasks() already have it; ensureLogisticsContextTask self-heals it
+// onto older sessions the first time their Logistics tab loads.
+export const LOGISTICS_CONTEXT_TASK_ID = 'masjid-extra-context';
+
+export async function ensureLogisticsContextTask(code: string): Promise<void> {
+  const { data: existing, error: findError } = await supabase
+    .from('tasks')
+    .select('id')
+    .eq('session_code', code)
+    .eq('id', LOGISTICS_CONTEXT_TASK_ID)
+    .maybeSingle();
+  if (findError) throw findError;
+  if (existing) return;
+
+  const { data: rows, error: fetchError } = await supabase
+    .from('tasks')
+    .select('sort_order')
+    .eq('session_code', code);
+  if (fetchError) throw fetchError;
+  const maxSortOrder = (rows ?? []).reduce((max, r) => Math.max(max, r.sort_order), -1);
+
+  const { error } = await supabase.from('tasks').insert({
+    id: LOGISTICS_CONTEXT_TASK_ID,
+    session_code: code,
+    title: 'Extra context for the family',
+    group_name: 'Logistics',
+    sort_order: maxSortOrder + 1,
+    claimed_by_pid: null,
+    claimed_by_name: null,
+    claimed_at: null,
+    done: false,
+    done_by_pid: null,
+    done_by_name: null,
+    done_at: null,
+    delegate_note: '',
+    pinned: false,
+    location: null,
+  });
+  // A concurrent ensure-call from another participant may have inserted it
+  // first — that's fine, not a real error.
+  if (error && error.code !== '23505') throw error;
+}
+
 // --- volunteers (Masjid half, per-session roster) -----------------------
 
 export async function addVolunteer(

@@ -5,16 +5,17 @@
   --page-bg: #eef1e6;
   --bg: #ffffff;
   --fg: #1a1a1a;
-  --muted: #6b7280;
-  --border: #d9d9d9;
-  --accent: #1e3a5f;
+  --muted: #4b4f52;
+  --border: #cecece;
+  --focus: #c9a227;
+  --accent: #24312a;
   --danger: #b91c1c;
   --panel-bg: #f7f7f8;
   --blocker-bg: #f3e3ad;
   --blocker-fg: #8a5a13;
   --confirmed: #1f7a43;
   --confirmed-bg: #1f7a4322;
-  --radius-card: 16px;
+  --radius-card: 12px;
   --radius-pill: 999px;
   --bottom-nav-height: 64px;
 }
@@ -26,7 +27,8 @@
     --fg: #f2f2f2;
     --muted: #9ca3af;
     --border: #333844;
-    --accent: #7ea2cc;
+    --accent: #8a6a2c;
+    --focus: #d9b64a;
     --danger: #f87171;
     --panel-bg: #23261d;
     --blocker-bg: #4a3c14;
@@ -38,6 +40,11 @@
 
 * {
   box-sizing: border-box;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
 }
 
 body {
@@ -73,7 +80,8 @@ button.btn-danger {
   background: transparent;
 }
 
-input {
+input,
+textarea {
   font: inherit;
   padding: 0.4rem 0.6rem;
   border: 1px solid var(--border);
@@ -81,6 +89,11 @@ input {
   background: var(--bg);
   color: var(--fg);
   width: 100%;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 4.5rem;
 }
 
 input[type='checkbox'],
@@ -130,7 +143,7 @@ input[type='radio'] {
 }
 
 .role-choice-desc {
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   color: var(--muted);
 }
 
@@ -166,6 +179,8 @@ label {
 
 .landing h1 {
   font-family: var(--font-serif);
+  font-weight: 700;
+  letter-spacing: -0.01em;
   text-align: center;
 }
 
@@ -244,7 +259,7 @@ label {
 
 .session-subtitle {
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -272,10 +287,11 @@ label {
 }
 
 .icon-button {
+  position: relative;
   padding: 0.35rem 0.45rem;
   line-height: 1;
   background: var(--bg);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border);
   flex: none;
 }
 
@@ -286,8 +302,12 @@ label {
   margin-bottom: 1.5rem;
 }
 
-.session-page > .segment-switcher {
+.content-area > .segment-switcher {
   justify-content: center;
+}
+
+.side-rail {
+  display: none;
 }
 
 .coming-soon-placeholder {
@@ -357,25 +377,6 @@ label {
   font-size: 1.1rem;
 }
 
-.chat-fab {
-  position: fixed;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
-  border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-left: none;
-  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.08);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  z-index: 15;
-}
-
 .overview-empty {
   color: var(--muted);
   margin: 2rem 0;
@@ -383,13 +384,11 @@ label {
 }
 
 .hero-card {
-  background: var(--bg);
-  border-radius: var(--radius-card);
-  padding: 1.1rem 1.25rem;
+  padding: 0 0 1.1rem;
   margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
 }
 
 .hero-card-label {
@@ -401,8 +400,9 @@ label {
 
 .hero-card-value {
   font-family: var(--font-serif);
-  font-size: 1.75rem;
+  font-size: 1.9rem;
   font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .hero-card-tbd {
@@ -549,11 +549,8 @@ label {
 }
 
 .task-row {
-  background: var(--bg);
-  border-radius: 10px;
-  padding: 0.6rem 0.8rem;
-  margin-bottom: 0.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--border);
 }
 
 .task-title {
@@ -626,7 +623,6 @@ label {
   max-width: none;
   gap: 0.5rem;
   border-radius: var(--radius-card);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
 }
 
 .records-summary-total {
@@ -653,6 +649,33 @@ label {
   font-weight: 600;
 }
 
+.logistics-intro {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0 0 0.25rem;
+}
+
+.logistics-slot {
+  max-width: none;
+}
+
+.logistics-slot-confirmed {
+  font-weight: 600;
+  margin: 0;
+}
+
+.logistics-slot-missing {
+  color: var(--muted);
+  font-style: italic;
+  margin: 0;
+}
+
+.logistics-context-hint {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
 .records-empty {
   color: var(--muted);
   text-align: center;
@@ -662,18 +685,15 @@ label {
 .records-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
 }
 
 .cost-row,
 .document-row {
-  background: var(--bg);
-  border-radius: 10px;
-  padding: 0.6rem 0.8rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .cost-row-label,
@@ -784,13 +804,11 @@ label {
 }
 
 .directory-card {
-  background: var(--bg);
-  border-radius: 10px;
-  padding: 0.75rem 0.9rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .directory-card-header {
@@ -932,11 +950,11 @@ label {
 .announce-text {
   white-space: pre-wrap;
   font-family: inherit;
+  border: 1px solid var(--border);
   border-radius: var(--radius-card);
   padding: 1rem 1.25rem;
   background: var(--bg);
   margin: 0;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
 }
 
 .announce-ai-actions,
@@ -1151,54 +1169,169 @@ label {
 }
 
 /* Wide/"webpage" treatment — mobile layout above is untouched. On a wide
-   browser this frames the app as a distinct page (card + shadow) on the
-   sage canvas, with the bottom nav docked in-flow rather than fixed (a
-   fixed bar glued to the browser window's edge reads as a mobile artifact
-   on desktop). */
+   browser this drops the floating-card-on-canvas look entirely: the app
+   fills the window edge-to-edge, with a persistent left sidebar nav
+   (repurposing the same bottom-nav markup) instead of a bottom tab bar,
+   matching a native desktop app rather than a mobile view stretched wide. */
 @media (min-width: 860px) {
+  body {
+    background: var(--bg);
+  }
+
   .session-page {
     display: flex;
-    flex-direction: column;
-    height: calc(100vh - 4rem);
-    max-width: 880px;
-    margin: 2rem auto;
-    padding: 0;
-    background: var(--bg);
-    border-radius: var(--radius-card);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-  }
-
-  /* Header and bottom nav stay a fixed size at a fixed position within the
-     card; only the middle content area scrolls. Without this, the nav's
-     on-screen position (and the card's overall height) would shift per tab
-     depending on how much content that tab has (e.g. Tasks' long list vs.
-     Records' short one). */
-  .session-header {
-    flex: none;
-    margin-bottom: 0;
-    padding: 1.25rem 1.75rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .session-page main {
-    flex: 1 1 auto;
-    overflow-y: auto;
-    padding: 1.5rem 1.75rem;
-  }
-
-  .session-page > .segment-switcher {
-    flex: none;
+    flex-direction: row;
+    height: 100vh;
+    max-width: none;
     margin: 0;
-    padding: 0.85rem 1.75rem;
-    border-bottom: 1px solid var(--border);
+    padding: 0;
   }
 
   .bottom-nav {
-    flex: none;
     position: static;
+    flex: none;
+    width: 220px;
+    height: 100vh;
     max-width: none;
     margin: 0;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 0.15rem;
+    padding: 1.5rem 0.75rem;
+    border-top: none;
+    border-right: 1px solid var(--border);
+    background: var(--panel-bg);
+  }
+
+  .bottom-nav-item {
+    flex: none;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+
+  .bottom-nav-item.active {
+    background: var(--bg);
+    color: var(--fg);
+    font-weight: 600;
+  }
+
+  .bottom-nav-item.active::after {
+    content: none;
+  }
+
+  .bottom-nav-icon {
+    font-size: 1rem;
+  }
+
+  .content-area {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    min-width: 0;
+  }
+
+  /* Header stays a fixed size at a fixed position; only main scrolls.
+     Without this, the header's position would shift per tab depending on
+     how much content that tab has (e.g. Tasks' long list vs. Records'
+     short one). */
+  .session-header {
+    flex: none;
+    margin-bottom: 0;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .content-body {
+    flex: 1 1 auto;
+    display: flex;
+    min-height: 0;
+  }
+
+  .content-area main {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 1.5rem 2rem;
+  }
+
+  .content-area > .segment-switcher {
+    display: none;
+  }
+
+  .side-rail {
+    display: block;
+    flex: none;
+    width: 240px;
+    padding: 1.75rem;
+    border-left: 1px solid var(--border);
+    overflow-y: auto;
+  }
+
+  .rail-toggle {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 96px;
+    height: 240px;
+    margin: 0 auto;
+    padding: 4px;
+    border-radius: 999px;
+    background: var(--panel-bg);
+    border: 1px solid var(--border);
+  }
+
+  .rail-toggle-thumb {
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    top: 4px;
+    height: calc(50% - 6px);
+    border-radius: 999px;
+    background: var(--accent);
+    transition: transform 0.2s ease;
+  }
+
+  .rail-toggle-thumb-masjid {
+    transform: translateY(calc(100% + 4px));
+  }
+
+  .rail-toggle-option {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 999px;
+    padding: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--muted);
+    transition: color 0.2s ease;
+  }
+
+  .rail-toggle-option.active {
+    color: white;
+  }
+
+  .rail-toggle-badge {
+    width: 96px;
+    margin: 0 auto;
+    padding: 1rem 0.5rem;
+    text-align: center;
+    font-weight: 600;
+    color: white;
+    background: var(--accent);
+    border-radius: 999px;
   }
 
   .landing,
@@ -1206,9 +1339,5 @@ label {
   .loading-state {
     max-width: 640px;
     margin: 3rem auto;
-    background: var(--bg);
-    border-radius: var(--radius-card);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-    padding: 2rem 2.25rem;
   }
 }

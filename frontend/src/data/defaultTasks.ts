@@ -50,6 +50,11 @@ export const DEFAULT_TASKS: DefaultTask[] = [
   { id: 'cemetery-confirms-slot', title: 'Cemetery confirms the burial slot', group: 'Logistics', pinned: true, delegateNote: 'Cemetery hours: Mon–Sat, 9am–3pm, closed Sunday.' },
   { id: 'janazah-prayer-held', title: 'Janazah prayer held', group: 'Body & Religious Care', pinned: true },
   { id: 'burial-completed', title: 'Burial completed', group: 'Logistics', pinned: true },
+
+  // Masjid Logistics tab's "Extra context" note — see LOGISTICS_CONTEXT_TASK_ID
+  // in sessionStore.ts, which self-heals this onto sessions created before
+  // it existed.
+  { id: 'masjid-extra-context', title: 'Extra context for the family', group: 'Logistics' },
 ];
 
 export function seedTasks(): Task[] {
